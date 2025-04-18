@@ -7,6 +7,4 @@ node_modules
 .cache
 .output
 .env
-.cargo
 dist
-src-tauri/target

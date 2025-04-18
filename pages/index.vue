@@ -59,11 +59,13 @@
 
 		<!-- Stations Grid -->
 		<div v-if="stations.length" class="grid gap-4 sm:grid-cols-2">
-			<StationCard
+			<!-- <StationCard
 				v-for="station in stations"
 				:key="station.Id"
 				:station="station"
-			/>
+			/> -->
+
+			<StationMap :stations="stations" />
 		</div>
 
 		<!-- No Stations Message -->
@@ -88,6 +90,7 @@ const stations = ref([]);
 const loading = ref(false);
 const attemptedLoad = ref(false);
 const isGeolocationEnabled = ref(false);
+const userCoords = ref({ latitude: null, longitude: null });
 
 // Selection
 const selectedDistrict = ref("");
@@ -121,7 +124,7 @@ const handleGeolocation = async ({
 	municipality,
 }) => {
 	isGeolocationEnabled.value = true;
-
+	userCoords.value = { latitude, longitude };
 	// Check if districts.value is populated
 	if (districts.value && districts.value.length > 0) {
 		console.log("Districts data available:", districts.value);
@@ -232,7 +235,27 @@ const load = async () => {
 			});
 		});
 
-		stations.value = Object.values(groupedStations);
+		let stationsArray = Object.values(groupedStations);
+
+		// Sort if geolocation is enabled
+		if (
+			isGeolocationEnabled.value &&
+			userCoords.value.latitude &&
+			userCoords.value.longitude
+		) {
+			stationsArray.forEach((station) => {
+				station.distance = getDistanceFromLatLonInKm(
+					userCoords.value.latitude,
+					userCoords.value.longitude,
+					station.Latitude,
+					station.Longitude
+				);
+			});
+
+			stationsArray.sort((a, b) => a.distance - b.distance);
+		}
+
+		stations.value = stationsArray;
 	} catch (error) {
 		console.error("Error loading stations:", error);
 		stations.value = [];
