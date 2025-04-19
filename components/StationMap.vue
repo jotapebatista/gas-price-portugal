@@ -46,8 +46,9 @@
 							><br />
 							<small
 								class="text-xs text-gray-400 dark:text-gray-300"
-								>{{ station.Morada }}</small
 							>
+								{{ station.Morada }}
+							</small>
 							<ul class="mt-2 space-y-1">
 								<li
 									v-for="p in station.prices"
@@ -59,12 +60,27 @@
 										:style="{
 											color: getFuelColor(p.fuelType),
 										}"
-										>⛽</span
 									>
+										<!-- ⛽ -->
+										<Icon
+											name="ph:gas-pump"
+											class="w-4 h-4"
+										/>
+									</span>
 									{{ p.fuelType }}:
 									<strong>€{{ p.price }}</strong>
 								</li>
 							</ul>
+
+							<a
+								:href="`https://www.google.com/maps/dir/?api=1&destination=${station.Latitude},${station.Longitude}`"
+								target="_blank"
+								rel="noopener"
+								class="inline-flex items-center gap-2 mt-3 px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+							>
+								<Icon name="ph:map-pin" class="w-4 h-4" />
+								<span>Navigate</span>
+							</a>
 						</div>
 					</LPopup>
 				</LMarker>
@@ -134,15 +150,6 @@ const colorMode = useColorMode();
 
 const isDark = ref(colorMode.value === "dark");
 
-// watch(
-//   () => colorMode.value,
-//   (newVal) => {
-// 	console.log('Color mode changed:', newVal)
-// 	isDark.value = newVal === 'dark'
-//   },
-//   { immediate: true }
-// )
-
 watch(
 	() => colorMode.value,
 	(newVal) => {
@@ -159,5 +166,12 @@ watch(
 }
 .leaflet-container {
 	z-index: 0 !important;
+}
+:deep(.leaflet-popup-content-wrapper) {
+	@apply bg-slate-800
+	/* background: red !important;
+	border: none !important;
+	box-shadow: none !important;
+	padding: 0 !important; */;
 }
 </style>
