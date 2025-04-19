@@ -1,81 +1,91 @@
 <template>
-	<div class="relative h-screen w-screen overflow-hidden">
-		<!-- Fullscreen Map -->
-		<StationMap :stations="stations" :user-location="userCoords" />
+	<div
+		class="container mx-auto p-4 space-y-6 text-gray-800 dark:text-gray-200"
+	>
+		<!-- District Selection -->
+		<div>
+			<GeoLocation
+				v-if="!isGeolocationEnabled"
+				@useGeolocation="handleGeolocation"
+				@skipGeolocation="handleSkipGeolocation"
+			/>
+		</div>
+		<div class="grid gap-4 sm:grid-cols-2">
+			<div>
+				<SelectInput
+					id="district"
+					label="District"
+					:options="districtOptions"
+					placeholder="Select a district"
+					v-model="selectedDistrict"
+					@update:modelValue="onDistrictChange"
+				/>
+			</div>
 
-		<!-- Toggle Button -->
+			<!-- Municipality Selection -->
+			<div>
+				<SelectInput
+					id="municipality"
+					label="Municipality"
+					:options="municipalityOptions"
+					placeholder="Select a municipality"
+					v-model="selectedMunicipality"
+					:disabled="!selectedDistrict"
+					@update:modelValue="onMunicipalityChange"
+				/>
+			</div>
+
+			<!-- Fuel Type Selection -->
+			<div class="sm:col-span-2">
+				<MultiSelect
+					:options="fuelTypes"
+					v-model="selectedGasTypes"
+					:disabled="!selectedMunicipality"
+					@update:model-value="onFuelTypeChange"
+				/>
+			</div>
+		</div>
+
+		<!-- Load Button -->
 		<button
-			class="absolute z-20 top-4 right-4 bg-white dark:bg-gray-900 text-sm px-3 py-1.5 shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-			@click="filtersVisible = !filtersVisible"
+			class="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded disabled:opacity-50"
+			@click="load"
+			:disabled="
+				!selectedMunicipality || !selectedGasTypes.length || loading
+			"
 		>
-			<span
-				>{{ filtersVisible ? "Hide Filters ▲" : "Show Filters ▼" }}
-			</span>
+			🔄 Load Prices
 		</button>
 
-		<!-- Slide Transition -->
-		<transition
-			name="slide-down"
-			enter-active-class="transition duration-300 ease-out"
-			leave-active-class="transition duration-300 ease-in"
-			enter-from-class="-translate-y-full opacity-0"
-			enter-to-class="translate-y-0 opacity-100"
-			leave-from-class="translate-y-0 opacity-100"
-			leave-to-class="-translate-y-full opacity-0"
+		<!-- Stations Grid -->
+		<div v-if="stations.length" class="grid gap-4 sm:grid-cols-2">
+			<!-- <StationCard
+				v-for="station in stations"
+				:key="station.Id"
+				:station="station"
+			/> -->
+
+			<!-- <StationMap :stations="stations" /> -->
+			<StationMap :stations="stations" :user-location="userCoords" />
+
+
+		</div>
+
+		<!-- No Stations Message -->
+		<!-- <div
+			v-if="attemptedLoad && !stations.length && !loading"
+			class="p-4 border-l-4 border-yellow-400 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-100 text-yellow-800 rounded"
 		>
-			<div
-				v-if="filtersVisible"
-				class="absolute top-0 left-1/2 -translate-x-1/2 w-full bg-white dark:bg-gray-800 shadow-xl rounded-b-lg z-10 overflow-auto max-h-[90vh] p-4"
-			>
-				<div class="grid gap-4 sm:grid-cols-2">
-					<div>
-						<GeoLocation
-							v-if="!isGeolocationEnabled"
-							@useGeolocation="handleGeolocation"
-							@skipGeolocation="handleSkipGeolocation"
-						/>
-					</div>
-					<div>
-						<SelectInput
-							id="district"
-							label="District"
-							:options="districtOptions"
-							placeholder="Select a district"
-							v-model="selectedDistrict"
-							@update:modelValue="onDistrictChange"
-						/>
-					</div>
-					<div>
-						<SelectInput
-							id="municipality"
-							label="Municipality"
-							:options="municipalityOptions"
-							placeholder="Select a municipality"
-							v-model="selectedMunicipality"
-							:disabled="!selectedDistrict"
-							@update:modelValue="onMunicipalityChange"
-						/>
-					</div>
-					<div class="sm:col-span-2">
-						<MultiSelect
-							label="Gas Types"
-							:options="fuelTypes"
-							v-model="selectedGasTypes"
-							:disabled="!selectedMunicipality"
-							@update:model-value="load"
-						/>
-					</div>
-				</div>
-			</div>
-		</transition>
+			⚠️ No stations found for this area.
+		</div> -->
 	</div>
 </template>
+
 <script setup>
 const { fetchDistricts, fetchMunicipalities, fetchStations, fetchFuelTypes } =
 	useGasStationsAPI();
 
 // State
-const filtersVisible = ref(true);
 const districts = ref([]);
 const municipalities = ref([]);
 const fuels = ref([]);
@@ -146,7 +156,6 @@ const handleGeolocation = async ({
 
 const handleSkipGeolocation = () => {
 	console.log("User opted to select manually");
-	isGeolocationEnabled.value = true;
 	// Show the district/municipality selection UI instead
 };
 

@@ -1,7 +1,7 @@
 <template>
 	<ClientOnly>
 		<div
-			class="h-full w-full overflow-hidden shadow-lg "
+			class="h-[80vh] w-full rounded-2xl overflow-hidden shadow-lg border dark:border-slate-700"
 		>
 			<LMap
 				class="leaflet-map"
@@ -9,19 +9,23 @@
 				:zoom="10"
 				:center="defaultCenter"
 				:use-global-leaflet="true"
-				:zoomControl="false"
 			>
+				<!-- Dynamic TileLayer based on theme -->
 				<LTileLayer
 					v-if="!isDark"
 					url="https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 					attribution='&copy; <a href="https://carto.com/">CARTO</a>'
 				/>
+				<!-- <LTileLayer
+					v-else
+					url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+					attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a>'
+				/> -->
 				<LTileLayer
 					v-else
 					url="https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
 					attribution='&copy; <a href="https://carto.com/">CARTO</a>'
 				/>
-
 				<!-- User Marker -->
 				<LMarker
 					v-if="
@@ -36,7 +40,7 @@
 				>
 					<LPopup>
 						<div
-							class="p-2 text-sm rounded-xs"
+							class="p-2 text-sm rounded-md"
 							:class="
 								isDark
 									? 'bg-slate-800 text-white'
@@ -56,7 +60,7 @@
 				>
 					<LPopup>
 						<div
-							class="text-sm p-2 rounded-xs"
+							class="text-sm p-2 rounded-md"
 							:class="
 								isDark
 									? 'bg-slate-800 text-white'
@@ -77,10 +81,12 @@
 									class="flex gap-2 items-center text-xs"
 								>
 									<span
+										class="text-lg"
 										:style="{
 											color: getFuelColor(p.fuelType),
 										}"
 									>
+										<!-- ⛽ -->
 										<Icon
 											name="ph:gas-pump"
 											class="w-4 h-4"
@@ -210,12 +216,9 @@ watch(
 }
 :deep(.leaflet-popup-content-wrapper) {
 	@apply bg-slate-800
-	  /* background: red !important;
-	  border: none !important;
-	  box-shadow: none !important;
-	  padding: 0 !important; */;
-}
-.leaflet-control-container {
-  display: none !important;
+	/* background: red !important;
+	border: none !important;
+	box-shadow: none !important;
+	padding: 0 !important; */;
 }
 </style>

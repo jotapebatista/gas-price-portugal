@@ -1,12 +1,12 @@
 <template>
-	<div class="min-h-screen flex flex-col">
-	  <AppHeader />
-	  
-	  <main class="flex-1">
+	<div class="h-screen flex flex-col overflow-hidden">
+	  <AppHeader class="shrink-0" />
+  
+	  <main class="flex-1 overflow-hidden">
 		<slot />
 	  </main>
-	  
-	  <AppFooter />
+  
+	  <AppFooter class="shrink-0" />
 	</div>
   </template>
   
