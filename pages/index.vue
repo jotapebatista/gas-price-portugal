@@ -65,7 +65,10 @@
 				:station="station"
 			/> -->
 
-			<StationMap :stations="stations" />
+			<!-- <StationMap :stations="stations" /> -->
+			<StationMap :stations="stations" :user-location="userCoords" />
+
+
 		</div>
 
 		<!-- No Stations Message -->

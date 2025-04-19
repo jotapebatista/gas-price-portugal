@@ -26,8 +26,33 @@
 					url="https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
 					attribution='&copy; <a href="https://carto.com/">CARTO</a>'
 				/>
+				<!-- User Marker -->
+				<LMarker
+					v-if="
+						props.userLocation?.latitude &&
+						props.userLocation?.longitude
+					"
+					:lat-lng="[
+						props.userLocation.latitude,
+						props.userLocation.longitude,
+					]"
+					:icon="userIcon || undefined"
+				>
+					<LPopup>
+						<div
+							class="p-2 text-sm rounded-md"
+							:class="
+								isDark
+									? 'bg-slate-800 text-white'
+									: 'bg-white text-slate-800'
+							"
+						>
+							<strong>You are here 📍</strong>
+						</div>
+					</LPopup>
+				</LMarker>
 
-				<!-- Markers -->
+				<!-- Station Markers -->
 				<LMarker
 					v-for="station in stations"
 					:key="station.Id"
@@ -93,6 +118,8 @@
 import { useColorMode } from "@vueuse/core";
 import { onMounted } from "vue";
 
+const userIcon = ref<L.Icon | null>(null);
+
 // Fix Leaflet marker icon paths
 onMounted(async () => {
 	const L = await import("leaflet");
@@ -109,6 +136,16 @@ onMounted(async () => {
 			import.meta.url
 		).href,
 	});
+	userIcon.value = L.icon({
+		iconUrl:
+			"https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+		shadowUrl:
+			"https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+		iconSize: [25, 41],
+		iconAnchor: [12, 41],
+		popupAnchor: [1, -34],
+		shadowSize: [41, 41],
+	});
 });
 
 const props = defineProps<{
@@ -120,11 +157,21 @@ const props = defineProps<{
 		Longitude: number;
 		prices: { fuelType: string; price: number }[];
 	}[];
+	userLocation?: {
+		latitude: number | null;
+		longitude: number | null;
+	};
 }>();
 
-const defaultCenter = props.stations.length
-	? [props.stations[0].Latitude, props.stations[0].Longitude]
-	: [38.7223, -9.1393];
+const defaultCenter = computed(() => {
+	if (props.userLocation?.latitude && props.userLocation?.longitude) {
+		return [props.userLocation.latitude, props.userLocation.longitude];
+	}
+	if (props.stations.length) {
+		return [props.stations[0].Latitude, props.stations[0].Longitude];
+	}
+	return [39.5, -8];
+});
 
 const getFuelColor = (fuelType: string) => {
 	const map: Record<string, string> = {
