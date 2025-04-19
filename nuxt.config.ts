@@ -1,4 +1,4 @@
-const siteTitle = "Nuxt 3 PWA Template";
+const siteTitle = "GasApp - Portugal";
 
 /*
  * Nuxt 3 Config File
