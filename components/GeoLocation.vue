@@ -61,12 +61,12 @@ const getGeolocation = () => {
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(
 			async (position) => {
-				console.log("Geolocation position: ", position);
+				// console.log("Geolocation position: ", position);
 				const { latitude, longitude } = position.coords;
 
 				// Check if lat and lng are valid
 				if (latitude && longitude) {
-					console.log("Geolocation retrieved: ", latitude, longitude);
+					// console.log("Geolocation retrieved: ", latitude, longitude);
 
 					// Save preference in cookie
 					Cookies.set("geolocationPreference", "yes", {

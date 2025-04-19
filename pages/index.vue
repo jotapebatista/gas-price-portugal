@@ -127,7 +127,6 @@ const handleGeolocation = async ({
 	userCoords.value = { latitude, longitude };
 	// Check if districts.value is populated
 	if (districts.value && districts.value.length > 0) {
-		console.log("Districts data available:", districts.value);
 		const selectedGeoDistrict = districts.value.find(
 			(d) => d.Descritivo === district
 		);
@@ -138,12 +137,10 @@ const handleGeolocation = async ({
 		const selectedGeoMunicipality = municipalities.value.find(
 			(m) => m.Descritivo === municipality
 		);
-		console.log(municipalities.value);
 
 		if (selectedGeoDistrict && selectedGeoMunicipality) {
 			selectedDistrict.value = selectedGeoDistrict.Id;
 			selectedMunicipality.value = selectedGeoMunicipality.Id;
-			console.log("Selected district:", selectedDistrict.value);
 		} else {
 			console.warn("No matching district found");
 		}

@@ -1,72 +1,71 @@
 <template>
-	<div class="relative w-full">
-		<!-- Dropdown Button -->
-		<button
-			type="button"
-			class="hs-select-toggle hs-select-disabled:pointer-events-none hs-select-disabled:opacity-50 relative py-3 ps-4 pe-9 flex gap-x-2 max-w-full cursor-pointer bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-start text-sm text-gray-800 dark:text-gray-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-			@click="toggleDropdown"
-			:aria-expanded="isDropdownOpen.toString()"
+	<div class="w-full max-w-sm">
+		<label
+			:for="id"
+			class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
 		>
-			<span v-if="selectedValues.length === 0"
-				>Select multiple options...</span
+			{{ label }}
+		</label>
+		<div class="relative w-full" ref="dropdownRef">
+			<!-- Dropdown Button -->
+			<button
+				type="button"
+				class="relative py-2.5 px-4 pe-9 w-full text-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-base text-gray-800 dark:text-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+				@click="toggleDropdown"
 			>
-			<span v-else>{{
-				selectedValues.map((opt) => opt.label).join(", ")
-			}}</span>
-			<div class="absolute top-1/2 end-3 -translate-y-1/2">
-				<svg
-					v-if="!isDropdownOpen"
-					class="shrink-0 size-3.5 text-gray-500 dark:text-gray-400"
-					xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				>
-					<path d="m7 15 5 5 5-5" />
-					<path d="m7 9 5-5 5 5" />
-				</svg>
-				<svg
-					v-if="isDropdownOpen"
-					class="shrink-0 size-3.5 text-gray-500 dark:text-gray-400"
-					xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				>
-					<path d="m7 15 5 5 5-5" />
-				</svg>
-			</div>
-		</button>
+				<span v-if="selectedValues.length === 0">
+					{{ placeholder || 'Select multiple options...' }}
+				</span>
+				<span v-else>
+					{{ selectedValues.map((opt) => opt.label).join(', ') }}
+				</span>
+				<div class="absolute top-1/2 right-3 -translate-y-1/2">
+					<svg
+						v-if="!isDropdownOpen"
+						class="size-4 text-gray-500 dark:text-gray-400"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="m7 9 5 5 5-5" />
+					</svg>
+					<svg
+						v-else
+						class="size-4 text-gray-500 dark:text-gray-400"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="m7 15 5-5 5 5" />
+					</svg>
+				</div>
+			</button>
 
-		<!-- Dropdown Menu -->
-		<div
-			v-if="isDropdownOpen"
-			class="hs-select-dropdown mt-2 z-50 w-full max-h-72 p-1 space-y-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden overflow-y-auto max-w-full"
-		>
+			<!-- Dropdown Menu -->
 			<div
-				v-for="option in options"
-				:key="option.value"
-				class="hs-select-option py-2 px-4 w-full text-sm text-gray-800 dark:text-gray-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg focus:outline-hidden focus:bg-gray-100 dark:focus:bg-gray-700"
-				@click="toggleOption(option)"
+				v-if="isDropdownOpen"
+				class="absolute z-50 mt-2 w-full max-h-60 overflow-auto rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 shadow-lg"
 			>
-				<div class="flex justify-between items-center w-full">
+				<div
+					v-for="option in options"
+					:key="option.value"
+					@click="toggleOption(option)"
+					class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 flex justify-between items-center"
+					:class="{ 'bg-gray-100 dark:bg-gray-700': isSelected(option) }"
+				>
 					<span>{{ option.label }}</span>
 					<span v-if="isSelected(option)">
 						<svg
-							class="shrink-0 size-3.5 text-blue-600"
+							class="size-4 text-blue-600"
 							xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
 							viewBox="0 0 24 24"
 							fill="none"
 							stroke="currentColor"
@@ -86,6 +85,7 @@
 <script setup>
 const props = defineProps({
 	label: String,
+	id: String,
 	options: {
 		type: Array,
 		required: true,
@@ -94,73 +94,47 @@ const props = defineProps({
 		type: Array,
 		default: () => [],
 	},
+	placeholder: String,
+	disabled: Boolean,
 });
 
 const emit = defineEmits(["update:modelValue"]);
-
-const selectedValues = ref([...props.modelValue]); // Initialize with modelValue
 const isDropdownOpen = ref(false);
+const selectedValues = ref([...props.modelValue]);
+const dropdownRef = ref(null);
 
 const toggleDropdown = () => {
-	isDropdownOpen.value = !isDropdownOpen.value;
+	if (!props.disabled) {
+		isDropdownOpen.value = !isDropdownOpen.value;
+	}
 };
 
-// Check if option is selected
 const isSelected = (option) => {
-	return selectedValues.value.some(
-		(selected) => selected.value === option.value
-	);
+	return selectedValues.value.some((opt) => opt.value === option.value);
 };
 
-// Toggle option selection
 const toggleOption = (option) => {
-	const index = selectedValues.value.findIndex(
-		(selected) => selected.value === option.value
-	);
+	const index = selectedValues.value.findIndex((opt) => opt.value === option.value);
 	if (index === -1) {
 		selectedValues.value.push(option);
 	} else {
 		selectedValues.value.splice(index, 1);
 	}
-	emit("update:modelValue", selectedValues.value); // Emit the updated modelValue
+	emit("update:modelValue", [...selectedValues.value]);
 };
 
-//   // Close dropdown when clicked outside
-//   const closeDropdown = (e) => {
-// 	if (!e.target.closest('.hs-select-toggle')) {
-// 	  isDropdownOpen.value = false;
-// 	}
-//   };
+// Handle click outside
+const handleClickOutside = (event) => {
+	if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+		isDropdownOpen.value = false;
+	}
+};
 
-//   onMounted(() => {
-// 	window.addEventListener('click', closeDropdown);
-//   });
+onMounted(() => {
+	document.addEventListener("click", handleClickOutside);
+});
 
-//   onBeforeUnmount(() => {
-// 	window.removeEventListener('click', closeDropdown);
-//   });
+onBeforeUnmount(() => {
+	document.removeEventListener("click", handleClickOutside);
+});
 </script>
-
-<style scoped>
-.hs-select-toggle {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-
-/* .hs-select-option:hover {
-	background-color: #f3f4f6;
-} */
-
-.hs-select-dropdown {
-	max-height: 300px;
-	overflow-y: auto;
-	max-width: 100%;
-}
-
-.hs-select-option {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-</style>

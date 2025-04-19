@@ -13,13 +13,18 @@
 				<!-- Dynamic TileLayer based on theme -->
 				<LTileLayer
 					v-if="!isDark"
-					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-					attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+					url="https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+					attribution='&copy; <a href="https://carto.com/">CARTO</a>'
 				/>
-				<LTileLayer
+				<!-- <LTileLayer
 					v-else
 					url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
 					attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a>'
+				/> -->
+				<LTileLayer
+					v-else
+					url="https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+					attribution='&copy; <a href="https://carto.com/">CARTO</a>'
 				/>
 
 				<!-- Markers -->
@@ -72,10 +77,9 @@
 import { useColorMode } from "@vueuse/core";
 import { onMounted } from "vue";
 
-
 // Fix Leaflet marker icon paths
-onMounted(async() => {
-	const L = await import('leaflet')
+onMounted(async () => {
+	const L = await import("leaflet");
 	delete L.Icon.Default.prototype._getIconUrl;
 	L.Icon.Default.mergeOptions({
 		iconRetinaUrl: new URL(
@@ -127,7 +131,25 @@ const getFuelColor = (fuelType: string) => {
 };
 
 const colorMode = useColorMode();
-const isDark = computed(() => colorMode.value === "dark");
+
+const isDark = ref(colorMode.value === "dark");
+
+// watch(
+//   () => colorMode.value,
+//   (newVal) => {
+// 	console.log('Color mode changed:', newVal)
+// 	isDark.value = newVal === 'dark'
+//   },
+//   { immediate: true }
+// )
+
+watch(
+	() => colorMode.value,
+	(newVal) => {
+		console.log("Color mode changed:", newVal);
+		isDark.value = newVal === "dark";
+	}
+);
 </script>
 
 <style scoped>

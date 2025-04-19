@@ -20,7 +20,7 @@
 		if ("serviceWorker" in navigator) {
 		  try {
 			const registration = await navigator.serviceWorker.register(workerPath, { scope });
-			console.log("SW scope:", registration.scope);
+			// console.log("SW scope:", registration.scope);
 		  } catch (error) {
 			console.error(`SW registration failed: ${error}`);
 		  }
