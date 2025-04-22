@@ -215,7 +215,8 @@ watch(
 	  box-shadow: none !important;
 	  padding: 0 !important; */;
 }
-.leaflet-control-container {
+.leaflet-control-zoom {
   display: none !important;
 }
+
 </style>

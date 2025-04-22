@@ -5,29 +5,27 @@
 
 		<!-- Toggle Button -->
 		<button
-			class="absolute z-20 top-4 right-4 bg-white dark:bg-gray-900 text-sm px-3 py-1.5 shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+			class="absolute z-30 bottom-4 left-4 bg-white dark:bg-gray-900 text-sm px-3 py-1.5 shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 transition"
 			@click="filtersVisible = !filtersVisible"
 		>
-			<span
-				>{{ filtersVisible ? "Hide Filters ▲" : "Show Filters ▼" }}
-			</span>
+			<span>{{ filtersVisible ? "← Close" : "☰ Filters" }}</span>
 		</button>
 
-		<!-- Slide Transition -->
+		<!-- Sidebar Transition -->
 		<transition
-			name="slide-down"
+			name="slide-left"
 			enter-active-class="transition duration-300 ease-out"
 			leave-active-class="transition duration-300 ease-in"
-			enter-from-class="-translate-y-full opacity-0"
-			enter-to-class="translate-y-0 opacity-100"
-			leave-from-class="translate-y-0 opacity-100"
-			leave-to-class="-translate-y-full opacity-0"
+			enter-from-class="-translate-x-full opacity-0"
+			enter-to-class="translate-x-0 opacity-100"
+			leave-from-class="translate-x-0 opacity-100"
+			leave-to-class="-translate-x-full opacity-0"
 		>
 			<div
 				v-if="filtersVisible"
-				class="absolute top-0 left-1/2 -translate-x-1/2 w-full bg-white dark:bg-gray-800 shadow-xl rounded-b-lg z-10 overflow-auto max-h-[90vh] p-4"
+				class="absolute top-0 left-0 h-full w-[85vw] max-w-sm bg-white dark:bg-gray-800 shadow-xl z-20 overflow-auto p-4 rounded-r-2xl"
 			>
-				<div class="grid gap-4 sm:grid-cols-2">
+				<div class="grid gap-4">
 					<div>
 						<GeoLocation
 							v-if="!isGeolocationEnabled"
@@ -56,7 +54,7 @@
 							@update:modelValue="onMunicipalityChange"
 						/>
 					</div>
-					<div class="sm:col-span-2">
+					<div>
 						<MultiSelect
 							label="Gas Types"
 							:options="fuelTypes"
@@ -70,6 +68,7 @@
 		</transition>
 	</div>
 </template>
+
 <script setup>
 const { fetchDistricts, fetchMunicipalities, fetchStations, fetchFuelTypes } =
 	useGasStationsAPI();
