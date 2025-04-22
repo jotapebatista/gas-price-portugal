@@ -231,7 +231,6 @@ watch(
 <style scoped>
 .leaflet-map {
 	filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-	border-radius: 1rem;
 }
 .leaflet-container {
 	z-index: 0 !important;
@@ -243,7 +242,7 @@ watch(
 	  box-shadow: none !important;
 	  padding: 0 !important; */;
 }
-.leaflet-control-zoom {
+:deep(.leaflet-control-zoom) {
 	display: none !important;
 }
 </style>
