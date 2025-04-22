@@ -1,8 +1,6 @@
 <template>
 	<ClientOnly>
-		<div
-			class="h-full w-full overflow-hidden shadow-lg "
-		>
+		<div class="h-full w-full overflow-hidden shadow-lg">
 			<LMap
 				class="leaflet-map"
 				style="height: 100%"
@@ -56,49 +54,70 @@
 				>
 					<LPopup>
 						<div
-							class="text-sm p-2 rounded-xs"
+							class="space-y-2 p-2 text-sm rounded-xl min-w-[220px]"
 							:class="
 								isDark
 									? 'bg-slate-800 text-white'
-									: 'bg-white text-slate-800'
+									: 'bg-white text-slate-900'
 							"
 						>
-							<strong class="text-base">{{ station.Nome }}</strong
-							><br />
-							<small
-								class="text-xs text-gray-400 dark:text-gray-300"
-							>
+							<!-- Header -->
+							<div class="flex justify-between items-center">
+								<h3 class="font-bold text-base">
+									{{ station.Nome }}
+								</h3>
+								<div
+									class="flex items-center gap-1 text-gray-400 text-xs"
+								>
+									<Icon
+										name="ph:map-trifold"
+										class="w-4 h-4"
+									/>
+									<span>{{
+										formatDistance(station.distance)
+									}}</span>
+								</div>
+							</div>
+
+							<!-- Address -->
+							<p class="text-xs text-gray-300 dark:text-gray-400">
 								{{ station.Morada }}
-							</small>
-							<ul class="mt-2 space-y-1">
+							</p>
+
+							<!-- Fuel Prices -->
+							<ul class="space-y-1">
 								<li
 									v-for="p in station.prices"
 									:key="p.fuelType"
-									class="flex gap-2 items-center text-xs"
+									class="flex items-center justify-between"
 								>
-									<span
-										:style="{
-											color: getFuelColor(p.fuelType),
-										}"
-									>
+									<div class="flex items-center gap-2">
 										<Icon
 											name="ph:gas-pump"
 											class="w-4 h-4"
+											:style="{
+												color: getFuelColor(p.fuelType),
+											}"
 										/>
-									</span>
-									{{ p.fuelType }}:
+										<span>{{ p.fuelType }}</span>
+									</div>
 									<strong>€{{ p.price }}</strong>
 								</li>
 							</ul>
 
+							<!-- Navigation Button -->
 							<a
 								:href="`https://www.google.com/maps/dir/?api=1&destination=${station.Latitude},${station.Longitude}`"
 								target="_blank"
 								rel="noopener"
-								class="inline-flex items-center gap-2 mt-3 px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+								class="flex items-center justify-center gap-2 px-3 py-2 mt-2 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"
 							>
+							<div class="text-white flex gap-1 items-center justify-center">
 								<Icon name="ph:map-pin" class="w-4 h-4" />
 								<span>Navigate</span>
+
+							</div>
+								
 							</a>
 						</div>
 					</LPopup>
@@ -149,6 +168,7 @@ const props = defineProps<{
 		Morada: string;
 		Latitude: number;
 		Longitude: number;
+		distance: number;
 		prices: { fuelType: string; price: number }[];
 	}[];
 	userLocation?: {
@@ -166,6 +186,12 @@ const defaultCenter = computed(() => {
 	}
 	return [39.5, -8];
 });
+
+const formatDistance = (distance:number) => {
+	if (!distance) return "";
+	if (distance < 1) return `${Math.round(distance * 1000)} m`;
+	return `${distance.toFixed(1)} km`;
+};
 
 const getFuelColor = (fuelType: string) => {
 	const map: Record<string, string> = {
@@ -216,7 +242,6 @@ watch(
 	  padding: 0 !important; */;
 }
 .leaflet-control-zoom {
-  display: none !important;
+	display: none !important;
 }
-
 </style>

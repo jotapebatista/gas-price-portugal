@@ -1,20 +1,19 @@
 <template>
-	<div class="flex items-center">
-		<div
-			class="dark:bg-gray-700 bg-gray-200 switcher relative inline-flex h-[24px] w-[56px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+	<div class="flex items-center space-x-3">
+		<button
+			class="relative inline-flex items-center h-7 w-14 rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
+			:class="colorMode.preference === 'dark' ? 'bg-gray-800' : 'bg-yellow-400'"
 			@click="toggleTheme"
+			:title="colorMode.preference === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
 		>
-			<span class="sr-only">Use setting</span>
 			<span
-				aria-hidden="true"
-				:class="
-					colorMode.preference === 'dark'
-						? 'translate-x-0'
-						: 'translate-x-8'
-				"
-				class="pointer-events-none inline-block h-[20px] w-[21px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
-			/>
-		</div>
+				class="absolute left-1 flex h-5 w-5 items-center justify-center transform rounded-full bg-white text-gray-800 shadow-md transition-all duration-300"
+				:class="colorMode.preference === 'dark' ? 'translate-x-0' : 'translate-x-7'"
+			>
+				<span v-if="colorMode.preference === 'dark'">🌙</span>
+				<span v-else>☀️</span>
+			</span>
+		</button>
 	</div>
 </template>
 

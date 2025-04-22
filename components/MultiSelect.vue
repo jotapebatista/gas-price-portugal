@@ -14,7 +14,7 @@
 				@click="toggleDropdown"
 			>
 				<span v-if="selectedValues.length === 0">
-					{{ placeholder || 'Select multiple options...' }}
+					{{ placeholder || 'Select one or more options...' }}
 				</span>
 				<span v-else>
 					{{ selectedValues.map((opt) => opt.label).join(', ') }}

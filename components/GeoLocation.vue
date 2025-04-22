@@ -1,45 +1,72 @@
 <template>
 	<div
-		class="flex flex-col items-center justify-center p-6 space-y-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md"
+		class="w-full max-w-md mx-auto p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-lg space-y-6 animate-fade-in"
 	>
-		<h3 class="text-xl font-semibold text-gray-800 dark:text-white">
-			Use Your Geolocation?
-		</h3>
-		<p class="text-gray-700 dark:text-gray-300">
-			We can automatically detect your location. Do you want to use it for
-			finding nearby gas stations?
-		</p>
-		<div class="flex space-x-4">
+		<div class="space-y-2 text-center">
+			<h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center justify-center gap-2">
+				<!-- <LocateFixed class="w-6 h-6 text-blue-600 dark:text-blue-400" /> -->
+				Use Your Geolocation?
+			</h3>
+			<p class="text-gray-600 dark:text-gray-300">
+				Allow us to detect your location to show gas stations near you.
+			</p>
+		</div>
+
+		<div class="flex flex-col sm:flex-row gap-3 justify-center">
 			<button
 				@click="getGeolocation"
-				class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+				class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium transition"
 			>
 				Yes, Use My Location
 			</button>
 			<button
 				@click="skipGeolocation"
-				class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md"
+				class="px-5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition"
 			>
 				No, I’ll Select Manually
 			</button>
 		</div>
 	</div>
 </template>
+
 <script setup>
 import Cookies from "js-cookie";
 
-// Emit events to handle user's response
 const emit = defineEmits(["useGeolocation", "skipGeolocation"]);
 
-// Check if the user has already made a choice
 onMounted(async () => {
 	const userChoice = Cookies.get("geolocationPreference");
 
-	if (userChoice === "yes") {
-		// Try to get location again
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(async (position) => {
-				const { latitude, longitude } = position.coords;
+	if (userChoice === "yes" && navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(async (position) => {
+			const { latitude, longitude } = position.coords;
+			const locationData = await getLocationFromCoordinates(latitude, longitude);
+
+			emit("useGeolocation", {
+				latitude,
+				longitude,
+				district: locationData.district,
+				municipality: locationData.municipality,
+			});
+		});
+	} else if (userChoice === "no") {
+		emit("skipGeolocation");
+	}
+});
+
+const getGeolocation = () => {
+	if (!navigator.geolocation) {
+		alert("Geolocation is not supported by your browser.");
+		return;
+	}
+
+	navigator.geolocation.getCurrentPosition(
+		async (position) => {
+			const { latitude, longitude } = position.coords;
+
+			if (latitude && longitude) {
+				Cookies.set("geolocationPreference", "yes", { expires: 365 });
+
 				const locationData = await getLocationFromCoordinates(latitude, longitude);
 
 				emit("useGeolocation", {
@@ -48,61 +75,36 @@ onMounted(async () => {
 					district: locationData.district,
 					municipality: locationData.municipality,
 				});
-			});
-		}
-	} else if (userChoice === "no") {
-		emit("skipGeolocation");
-	}
-});
-
-// const userChoice = Cookies.get("geolocationPreference");
-
-const getGeolocation = () => {
-	if (navigator.geolocation) {
-		navigator.geolocation.getCurrentPosition(
-			async (position) => {
-				// console.log("Geolocation position: ", position);
-				const { latitude, longitude } = position.coords;
-
-				// Check if lat and lng are valid
-				if (latitude && longitude) {
-					// console.log("Geolocation retrieved: ", latitude, longitude);
-
-					// Save preference in cookie
-					Cookies.set("geolocationPreference", "yes", {
-						expires: 365,
-					});
-
-					// Get district and municipality using reverse geocoding
-					const locationData = await getLocationFromCoordinates(
-						latitude,
-						longitude
-					);
-
-					// Send geolocation data (latitudeitude, longitude, district, municipality) back to parent
-					emit("useGeolocation", {
-						latitude,
-						longitude,
-						district: locationData.district,
-						municipality: locationData.municipality,
-					});
-				} else {
-					console.error("Invalid geolocation data");
-				}
-			},
-			(error) => {
-				console.error("Error getting geolocation:", error);
-				alert("Could not retrieve your location. Please try again.");
+			} else {
+				console.error("Invalid geolocation data");
 			}
-		);
-	} else {
-		alert("Geolocation is not supported by your browser.");
-	}
+		},
+		(error) => {
+			console.error("Error getting geolocation:", error);
+			alert("Could not retrieve your location. Please try again.");
+		}
+	);
 };
 
 const skipGeolocation = () => {
 	Cookies.set("geolocationPreference", "no", { expires: 365 });
-
 	emit("skipGeolocation");
 };
 </script>
+
+<style scoped>
+@keyframes fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-fade-in {
+	animation: fade-in 0.4s ease-out;
+}
+</style>

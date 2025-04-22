@@ -2,10 +2,30 @@
 	<div class="relative h-screen w-screen overflow-hidden">
 		<!-- Fullscreen Map -->
 		<StationMap :stations="stations" :user-location="userCoords" />
+		<!-- Geolocation Slide-Down -->
+		<transition
+			name="slide-down"
+			enter-active-class="transition transform duration-300 ease-out"
+			leave-active-class="transition transform duration-200 ease-in"
+			enter-from-class="-translate-y-full opacity-0"
+			enter-to-class="translate-y-0 opacity-100"
+			leave-from-class="translate-y-0 opacity-100"
+			leave-to-class="-translate-y-full opacity-0"
+		>
+			<div
+				v-if="!isGeolocationEnabled"
+				class="absolute top-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 p-4 rounded-b-2xl"
+			>
+				<GeoLocation
+					@useGeolocation="handleGeolocation"
+					@skipGeolocation="handleSkipGeolocation"
+				/>
+			</div>
+		</transition>
 
 		<!-- Toggle Button -->
 		<button
-			class="absolute z-30 bottom-4 left-4 bg-white dark:bg-gray-900 text-sm px-3 py-1.5 shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+			class="absolute z-30 bottom-4 left-4 bg-white dark:bg-gray-900 text-sm px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
 			@click="filtersVisible = !filtersVisible"
 		>
 			<span>{{ filtersVisible ? "← Close" : "☰ Filters" }}</span>
@@ -23,16 +43,16 @@
 		>
 			<div
 				v-if="filtersVisible"
-				class="absolute top-0 left-0 h-full w-[85vw] max-w-sm bg-white dark:bg-gray-800 shadow-xl z-20 overflow-auto p-4 rounded-r-2xl"
+				class="absolute top-0 left-0 h-full w-[85vw] max-w-sm bg-white dark:bg-gray-800 z-20 overflow-auto p-4 rounded-r-2xl"
 			>
 				<div class="grid gap-4">
-					<div>
+					<!-- <div>
 						<GeoLocation
 							v-if="!isGeolocationEnabled"
 							@useGeolocation="handleGeolocation"
 							@skipGeolocation="handleSkipGeolocation"
 						/>
-					</div>
+					</div> -->
 					<div>
 						<SelectInput
 							id="district"
@@ -74,7 +94,7 @@ const { fetchDistricts, fetchMunicipalities, fetchStations, fetchFuelTypes } =
 	useGasStationsAPI();
 
 // State
-const filtersVisible = ref(true);
+const filtersVisible = ref(false);
 const districts = ref([]);
 const municipalities = ref([]);
 const fuels = ref([]);
@@ -83,6 +103,8 @@ const loading = ref(false);
 const attemptedLoad = ref(false);
 const isGeolocationEnabled = ref(false);
 const userCoords = ref({ latitude: null, longitude: null });
+const watchId = ref(null);
+// let watchId = null;
 
 // Selection
 const selectedDistrict = ref("");
@@ -108,15 +130,49 @@ const municipalityOptions = computed(() =>
 		.sort((a, b) => a.label.localeCompare(b.label))
 );
 
+const startLiveGeolocation = async () => {
+	if (!navigator.geolocation) {
+		console.warn("Geolocation not supported by your browser.");
+		return;
+	}
+	watchId.value = navigator.geolocation.watchPosition(
+		(position) => {
+			const { latitude, longitude } = position.coords;
+			userCoords.value = { latitude, longitude };
+
+			console.log("Geolocation updated:", position.coords);
+		},
+		(error) => {
+			if (error.code === error.TIMEOUT) {
+				// console.warn("Geolocation timed out, retrying...");
+				stopLiveGeolocation();
+				setTimeout(() => {
+					startLiveGeolocation();
+				}, 3000);
+			} else {
+				console.error("Error watching geolocation:", error);
+			}
+		},
+		{
+			enableHighAccuracy: true,
+			maximumAge: 5000,
+			timeout: 3000,
+		}
+	);
+};
+
+const stopLiveGeolocation = () => {
+	if (watchId.value !== null) {
+		navigator.geolocation.clearWatch(watchId.value);
+		watchId.value = null;
+	}
+};
+
 // Handlers for geolocation choice
-const handleGeolocation = async ({
-	latitude,
-	longitude,
-	district,
-	municipality,
-}) => {
+const handleGeolocation = async ({ district, municipality }) => {
 	isGeolocationEnabled.value = true;
-	userCoords.value = { latitude, longitude };
+	startLiveGeolocation();
+	// userCoords.value = { latitude, longitude };
 	// Check if districts.value is populated
 	if (districts.value && districts.value.length > 0) {
 		const selectedGeoDistrict = districts.value.find(
@@ -144,7 +200,6 @@ const handleGeolocation = async ({
 };
 
 const handleSkipGeolocation = () => {
-	console.log("User opted to select manually");
 	isGeolocationEnabled.value = true;
 	// Show the district/municipality selection UI instead
 };
@@ -177,11 +232,6 @@ const onMunicipalityChange = () => {
 	stations.value = [];
 };
 
-// When fuel types change, clear previous results
-const onFuelTypeChange = () => {
-	stations.value = [];
-};
-
 // Load stations
 const load = async () => {
 	if (
@@ -190,6 +240,8 @@ const load = async () => {
 		!selectedGasTypes.value.length
 	)
 		return;
+
+	console.log("Loading stations...");
 
 	loading.value = true;
 	attemptedLoad.value = true;
@@ -243,6 +295,7 @@ const load = async () => {
 			});
 
 			stationsArray.sort((a, b) => a.distance - b.distance);
+			console.log("Stations sorted by distance:", stationsArray);
 		}
 
 		stations.value = stationsArray;
