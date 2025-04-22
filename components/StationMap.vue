@@ -5,7 +5,7 @@
 				class="leaflet-map"
 				style="height: 100%"
 				:zoom="10"
-				:center="defaultCenter"
+				:center="mapCenter"
 				:use-global-leaflet="true"
 				:zoomControl="false"
 			>
@@ -226,6 +226,20 @@ watch(
 		isDark.value = newVal === "dark";
 	}
 );
+
+const hasCentered = ref(false);
+const mapCenter = ref<[number, number]>([39.5, -8]);
+
+watchEffect(() => {
+	if (!hasCentered.value && props.userLocation?.latitude && props.userLocation?.longitude) {
+		mapCenter.value = [props.userLocation.latitude, props.userLocation.longitude];
+		hasCentered.value = true;
+	} else if (!hasCentered.value && props.stations.length) {
+		mapCenter.value = [props.stations[0].Latitude, props.stations[0].Longitude];
+		hasCentered.value = true;
+	}
+});
+
 </script>
 
 <style scoped>
