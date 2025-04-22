@@ -177,15 +177,17 @@ const props = defineProps<{
 	};
 }>();
 
-const defaultCenter = computed(() => {
-	if (props.userLocation?.latitude && props.userLocation?.longitude) {
-		return [props.userLocation.latitude, props.userLocation.longitude];
-	}
-	if (props.stations.length) {
-		return [props.stations[0].Latitude, props.stations[0].Longitude];
-	}
-	return [39.5, -8];
-});
+const defaultCenter = ref<[number, number]>([39.5, -8]);
+
+watch(
+	() => props.userLocation,
+	(userLocation) => {
+		if (userLocation?.latitude && userLocation?.longitude) {
+			defaultCenter.value = [userLocation.latitude, userLocation.longitude];
+		}
+	},
+	{ immediate: true }
+);
 
 const formatDistance = (distance:number) => {
 	if (!distance) return "";

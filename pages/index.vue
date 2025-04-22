@@ -139,8 +139,6 @@ const startLiveGeolocation = async () => {
 		(position) => {
 			const { latitude, longitude } = position.coords;
 			userCoords.value = { latitude, longitude };
-
-			console.log("Geolocation updated:", position.coords);
 		},
 		(error) => {
 			if (error.code === error.TIMEOUT) {
@@ -241,8 +239,6 @@ const load = async () => {
 	)
 		return;
 
-	console.log("Loading stations...");
-
 	loading.value = true;
 	attemptedLoad.value = true;
 	stations.value = []; // Reset
@@ -295,7 +291,6 @@ const load = async () => {
 			});
 
 			stationsArray.sort((a, b) => a.distance - b.distance);
-			console.log("Stations sorted by distance:", stationsArray);
 		}
 
 		stations.value = stationsArray;
