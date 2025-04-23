@@ -39,7 +39,6 @@ export default defineNuxtConfig({
 		pageTransition: { name: "page", mode: "out-in" },
 	},
 
-
 	/**
 	 * * Nuxt 3 Modules
 	 * Official modules: https://nuxt.com/modules
@@ -68,7 +67,11 @@ export default defineNuxtConfig({
 		//    injectPosition: 0,
 		viewer: true, // set up the /_tailwind/ route. (Disable in production) https://tailwindcss.nuxt.dev/getting-started/options/#viewer
 	},
-
+vite: {
+	server: {
+		allowedHosts: ['top-dane-clearly.ngrok-free.app']
+	  },
+},
 	/**
 	 * * i18n Config
 	 * Official module: https://nuxt.com/modules/i18n

@@ -12,12 +12,10 @@
 				<LTileLayer
 					v-if="!isDark"
 					url="https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-					attribution='&copy; <a href="https://carto.com/">CARTO</a>'
 				/>
 				<LTileLayer
 					v-else
 					url="https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-					attribution='&copy; <a href="https://carto.com/">CARTO</a>'
 				/>
 
 				<!-- User Marker -->
@@ -112,15 +110,28 @@
 								rel="noopener"
 								class="flex items-center justify-center gap-2 px-3 py-2 mt-2 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"
 							>
-							<div class="text-white flex gap-1 items-center justify-center">
-								<Icon name="ph:map-pin" class="w-4 h-4" />
-								<span>Navigate</span>
-
-							</div>
-								
+								<div
+									class="text-white flex gap-1 items-center justify-center"
+								>
+									<Icon name="ph:map-pin" class="w-4 h-4" />
+									<span>Navigate</span>
+								</div>
 							</a>
 						</div>
+						<button
+							@click="showRouteToStation(station)"
+							class="mt-2 bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded text-sm"
+						>
+							Show Route
+						</button>
 					</LPopup>
+					<LPolyline
+						v-if="routeCoords.length"
+						:lat-lngs="routeCoords"
+						:weight="4"
+						:color="'#3b82f6'"
+						:opacity="0.8"
+					/>
 				</LMarker>
 			</LMap>
 		</div>
@@ -130,6 +141,7 @@
 <script setup lang="ts">
 import { useColorMode } from "@vueuse/core";
 import { onMounted } from "vue";
+import { getTravelDistance } from "~/composables/useRoute";
 
 const userIcon = ref<L.Icon | null>(null);
 
@@ -183,13 +195,16 @@ watch(
 	() => props.userLocation,
 	(userLocation) => {
 		if (userLocation?.latitude && userLocation?.longitude) {
-			defaultCenter.value = [userLocation.latitude, userLocation.longitude];
+			defaultCenter.value = [
+				userLocation.latitude,
+				userLocation.longitude,
+			];
 		}
 	},
 	{ immediate: true }
 );
 
-const formatDistance = (distance:number) => {
+const formatDistance = (distance: number) => {
 	if (!distance) return "";
 	if (distance < 1) return `${Math.round(distance * 1000)} m`;
 	return `${distance.toFixed(1)} km`;
@@ -215,6 +230,21 @@ const getFuelColor = (fuelType: string) => {
 	return map[fuelType] || "#6b7280";
 };
 
+const routeCoords = ref<[number, number][]>([]);
+
+async function showRouteToStation(station) {
+	const { geometry } = await getTravelDistance(
+		props.userLocation.latitude,
+		props.userLocation.longitude,
+		station.Latitude,
+		station.Longitude
+	);
+
+	routeCoords.value = geometry.coordinates.map(
+		([lng, lat]) => [lat, lng] // reverse order for Leaflet
+	);
+}
+
 const colorMode = useColorMode();
 
 const isDark = ref(colorMode.value === "dark");
@@ -231,15 +261,24 @@ const hasCentered = ref(false);
 const mapCenter = ref<[number, number]>([39.5, -8]);
 
 watchEffect(() => {
-	if (!hasCentered.value && props.userLocation?.latitude && props.userLocation?.longitude) {
-		mapCenter.value = [props.userLocation.latitude, props.userLocation.longitude];
+	if (
+		!hasCentered.value &&
+		props.userLocation?.latitude &&
+		props.userLocation?.longitude
+	) {
+		mapCenter.value = [
+			props.userLocation.latitude,
+			props.userLocation.longitude,
+		];
 		hasCentered.value = true;
 	} else if (!hasCentered.value && props.stations.length) {
-		mapCenter.value = [props.stations[0].Latitude, props.stations[0].Longitude];
+		mapCenter.value = [
+			props.stations[0].Latitude,
+			props.stations[0].Longitude,
+		];
 		hasCentered.value = true;
 	}
 });
-
 </script>
 
 <style scoped>

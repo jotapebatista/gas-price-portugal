@@ -25,7 +25,7 @@
 
 		<!-- Toggle Button -->
 		<button
-			class="absolute z-30 bottom-4 left-4 bg-white dark:bg-gray-900 text-sm px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+			class="absolute z-30 bottom-32 left-4 bg-white dark:bg-gray-900 text-sm px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
 			@click="filtersVisible = !filtersVisible"
 		>
 			<span>{{ filtersVisible ? "← Close" : "☰ Filters" }}</span>
