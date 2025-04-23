@@ -25,7 +25,7 @@
 
 		<!-- Toggle Button -->
 		<button
-			class="fixed z-30 bottom-10 left-4 bg-white dark:bg-gray-900 text-sm px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+			class="fixed z-30 bottom-10 left-4 bg-white dark:bg-black text-sm px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 transition border-2"
 			@click="filtersVisible = !filtersVisible"
 		>
 			<span>{{ filtersVisible ? "← Close" : "☰ Filters" }}</span>
@@ -43,7 +43,8 @@
 		>
 			<div
 				v-if="filtersVisible"
-				class="absolute top-0 left-0 h-full w-[85vw] max-w-sm bg-white dark:bg-gray-800 z-20 overflow-auto p-4 rounded-r-2xl"
+				class="absolute top-0 left-0 h-full w-[85vw] max-w-sm bg-white dark:bg-black z-20 overflow-auto p-4 "
+				@click.self="filtersVisible = false"
 			>
 				<div class="grid gap-4">
 					<div>

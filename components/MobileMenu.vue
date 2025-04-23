@@ -3,11 +3,11 @@
 		<transition name="fade-slide">
 			<div
 				v-if="open"
-				class="fixed inset-0 z-50 bg-black/50 flex justify-end"
+				class="fixed inset-0 z-50 bg-black/30 backdrop:blur-3xl flex justify-end"
 				@click.self="$emit('close')"
 			>
 				<nav
-					class="w-64 bg-white dark:bg-gray-900 text-black dark:text-white h-full shadow-lg p-5 flex flex-col space-y-4"
+					class="w-64 bg-white dark:bg-black text-black dark:text-white h-full shadow-lg p-5 flex flex-col space-y-4"
 				>
 					<NuxtLink
 						to="/"
