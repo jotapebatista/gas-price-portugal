@@ -1,66 +1,74 @@
+# 🚗 Nuxt 3 Travel Distance & Routing App
 
-<img src="public/images/banner-gh.png" />
+This Nuxt 3 web app calculates real travel distances and estimated durations between a user's location and a selected station using the [OpenRouteService API](https://openrouteservice.org/), and visualizes routes on a map using [Leaflet.js](https://leafletjs.com/).
 
-# Nuxt PWA
+---
 
-[![Generic badge](https://img.shields.io/badge/Nuxt-3.0.0-<COLOR>.svg)](https://shields.io/)
-[![Generic badge](https://img.shields.io/badge/Tailwind-6.1.3-38bdf8.svg)](https://shields.io/)
+## ✨ Features
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+- 🌍 Real-time travel distance and duration calculation
+- 🗺️ Leaflet map integration with route display
+- 📍 User location and station destination support
+- 🔐 Secure API key management via environment variables
+- 📱 Mobile-friendly design
 
+---
 
-# Features and Modules
+## 🧰 Tech Stack
 
+- [Nuxt 3](https://nuxt.com/)
+- [Leaflet](https://leafletjs.com/)
+- [OpenRouteService API](https://openrouteservice.org/)
+- TypeScript
+- TailwindCSS
 
-This template comes with some [Nuxt modules](https://nuxt.com/modules) pre-installed and standard configuration.
+---
 
-- Content
+## 🚀 Getting Started
 
-- Color mode
-
-- i18n
-
-- Tailwind
-
-- Icon
-
-- Vitest
-## Setup
-
-Make sure to install the dependencies:
+### 1. Clone the repository
 
 ```bash
-# yarn
-yarn install
-
-# npm
-npm install
-
-# pnpm
-pnpm install --shamefully-hoist
+git clone https://github.com/your-username/your-repo-name.git
+cd your-repo-name
 ```
 
-## Development Server
+### 2. Install dependencies
+```bash
+npm install
+```
+### 3. Set up environment variables
+Create a .env file in the root of the project and add your OpenRouteService API key:
+```bash
+ORS_API_KEY=your-api-key-here
+```
+Ensure your nuxt.config.ts includes the following:
 
-Start the development server on http://localhost:3000
+```ts
+export default defineNuxtConfig({
+  runtimeConfig: {
+    public: {
+      orsApiKey: process.env.ORS_API_KEY
+    }
+  }
+});
+```
 
+### 4. Run the app
 ```bash
 npm run dev
 ```
+Visit http://localhost:3000 in your browser.
 
-## Production
+---
 
-Build the application for production:
 
-```bash
-npm run build
-```
+## 📌 Buy Me a Coffee
+If you find this project helpful, feel free to support me:
 
-Locally preview production build:
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-orange?style=for-the-badge&logo=buymeacoffee&logoColor=white)](https://www.buymeacoffee.com/jotapebatista)
 
-```bash
-npm run preview
-```
+---
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
-
+## 📝 License
+MIT © 2025 João Batista
