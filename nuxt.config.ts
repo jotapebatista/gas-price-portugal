@@ -114,6 +114,7 @@ vite: {
 		// Keys within public are also exposed client-side
 		public: {
 			apiBase: "/api",
+			orsApiKey: process.env.ORS_API_KEY
 		},
 	},
 

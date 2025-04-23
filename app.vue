@@ -2,6 +2,7 @@
 	<NuxtLayout>
 	  <SplashScreen :src="'/favicon.ico'" :time="1000" width="100px" />
 	  <NuxtLoadingIndicator />
+	  <BuyMeACoffeeButton />
 	  <NuxtPage />
 	</NuxtLayout>
   </template>

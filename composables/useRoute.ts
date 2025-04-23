@@ -1,6 +1,7 @@
-const API_KEY = '5b3ce3597851110001cf6248a846f669ead540f2bc15925173aa55e2';
-
 export async function getTravelDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+	const config = useRuntimeConfig();
+	const API_KEY = config.public.orsApiKey;
+
 	const url = 'https://api.openrouteservice.org/v2/directions/driving-car';
 
 	try {
@@ -17,8 +18,6 @@ export async function getTravelDistance(lat1: number, lon1: number, lat2: number
 				]
 			}
 		});
-
-		console.log('API result:', result);
 
 		if (!result?.routes?.length) {
 			throw new Error('Invalid response: No route data returned.');

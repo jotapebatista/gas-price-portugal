@@ -7,7 +7,7 @@
 			:title="colorMode.preference === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
 		>
 			<span
-				class="absolute left-1 flex h-5 w-5 items-center justify-center transform rounded-full bg-white text-gray-800 shadow-md transition-all duration-300"
+				class="absolute left-1 flex h-5 w-5 items-center justify-center transform rounded-full  text-gray-800 shadow-md transition-all duration-300"
 				:class="colorMode.preference === 'dark' ? 'translate-x-0' : 'translate-x-7'"
 			>
 				<span v-if="colorMode.preference === 'dark'">🌙</span>
