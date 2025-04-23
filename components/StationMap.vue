@@ -12,10 +12,12 @@
 				<LTileLayer
 					v-if="!isDark"
 					url="https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+					attribution='&copy; <a href="https://carto.com/">CARTO</a>'
 				/>
 				<LTileLayer
 					v-else
 					url="https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+					attribution='&copy; <a href="https://carto.com/">CARTO</a>'
 				/>
 
 				<!-- User Marker -->
@@ -64,7 +66,7 @@
 								<h3 class="font-bold text-base">
 									{{ station.Nome }}
 								</h3>
-								<div
+								<!-- <div
 									class="flex items-center gap-1 text-gray-400 text-xs"
 								>
 									<Icon
@@ -74,7 +76,7 @@
 									<span>{{
 										formatDistance(station.distance)
 									}}</span>
-								</div>
+								</div> -->
 							</div>
 
 							<!-- Address -->
@@ -104,35 +106,41 @@
 							</ul>
 
 							<!-- Navigation Button -->
-							<a
-								:href="`https://www.google.com/maps/dir/?api=1&destination=${station.Latitude},${station.Longitude}`"
-								target="_blank"
-								rel="noopener"
-								class="flex items-center justify-center gap-2 px-3 py-2 mt-2 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"
-							>
-								<div
-									class="text-white flex gap-1 items-center justify-center"
+							<div class="flex justify-between">
+								<a
+									:href="`https://www.google.com/maps/dir/?api=1&destination=${station.Latitude},${station.Longitude}`"
+									target="_blank"
+									rel="noopener"
+									class="flex items-center justify-center gap-2 px-3 py-2 mt-2 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"
 								>
-									<Icon name="ph:map-pin" class="w-4 h-4" />
-									<span>Navigate</span>
-								</div>
-							</a>
+									<div
+										class="text-white flex gap-1 items-center justify-center"
+									>
+										<Icon
+											name="ph:map-pin"
+											class="w-4 h-4"
+										/>
+										<span>Navigate</span>
+									</div>
+								</a>
+								<button
+									@click="showRouteToStation(station)"
+									class="mt-2 bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded text-sm"
+								>
+									Show Route
+								</button>
+							</div>
+							<!--  -->
 						</div>
-						<button
-							@click="showRouteToStation(station)"
-							class="mt-2 bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded text-sm"
-						>
-							Show Route
-						</button>
 					</LPopup>
-					<LPolyline
-						v-if="routeCoords.length"
-						:lat-lngs="routeCoords"
-						:weight="4"
-						:color="'#3b82f6'"
-						:opacity="0.8"
-					/>
 				</LMarker>
+				<LPolyline
+					v-if="routeCoords.length"
+					:lat-lngs="routeCoords"
+					:weight="4"
+					:color="'#3b82f6'"
+					:opacity="0.8"
+				/>
 			</LMap>
 		</div>
 	</ClientOnly>
@@ -140,8 +148,9 @@
 
 <script setup lang="ts">
 import { useColorMode } from "@vueuse/core";
+import polyline from "@mapbox/polyline";
+
 import { onMounted } from "vue";
-import { getTravelDistance } from "~/composables/useRoute";
 
 const userIcon = ref<L.Icon | null>(null);
 
@@ -190,6 +199,7 @@ const props = defineProps<{
 }>();
 
 const defaultCenter = ref<[number, number]>([39.5, -8]);
+const routeCoords = ref<[number, number][]>([]);
 
 watch(
 	() => props.userLocation,
@@ -230,21 +240,6 @@ const getFuelColor = (fuelType: string) => {
 	return map[fuelType] || "#6b7280";
 };
 
-const routeCoords = ref<[number, number][]>([]);
-
-async function showRouteToStation(station) {
-	const { geometry } = await getTravelDistance(
-		props.userLocation.latitude,
-		props.userLocation.longitude,
-		station.Latitude,
-		station.Longitude
-	);
-
-	routeCoords.value = geometry.coordinates.map(
-		([lng, lat]) => [lat, lng] // reverse order for Leaflet
-	);
-}
-
 const colorMode = useColorMode();
 
 const isDark = ref(colorMode.value === "dark");
@@ -279,6 +274,22 @@ watchEffect(() => {
 		hasCentered.value = true;
 	}
 });
+
+async function showRouteToStation(station) {
+	const res = await getTravelDistance(
+		props.userLocation.latitude,
+		props.userLocation.longitude,
+		station.Latitude,
+		station.Longitude
+	);
+
+	console.log(res);
+
+	const coords = polyline.decode(res.geometry);
+
+	// Leaflet expects [lat, lng], so just pass as is
+	routeCoords.value = coords;
+}
 </script>
 
 <style scoped>

@@ -25,13 +25,13 @@
 
 		<!-- Toggle Button -->
 		<button
-			class="absolute z-30 bottom-32 left-4 bg-white dark:bg-gray-900 text-sm px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+			class="absolute z-30 bottom-4 left-4 bg-white dark:bg-gray-900 text-sm px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
 			@click="filtersVisible = !filtersVisible"
 		>
 			<span>{{ filtersVisible ? "← Close" : "☰ Filters" }}</span>
 		</button>
 
-		<!-- Sidebar Transition -->
+		<!-- Sidebar Filters -->
 		<transition
 			name="slide-left"
 			enter-active-class="transition duration-300 ease-out"
@@ -46,13 +46,6 @@
 				class="absolute top-0 left-0 h-full w-[85vw] max-w-sm bg-white dark:bg-gray-800 z-20 overflow-auto p-4 rounded-r-2xl"
 			>
 				<div class="grid gap-4">
-					<!-- <div>
-						<GeoLocation
-							v-if="!isGeolocationEnabled"
-							@useGeolocation="handleGeolocation"
-							@skipGeolocation="handleSkipGeolocation"
-						/>
-					</div> -->
 					<div>
 						<SelectInput
 							id="district"
