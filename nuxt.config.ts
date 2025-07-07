@@ -1,48 +1,67 @@
 const siteTitle = "GasApp - Portugal";
 
-/*
- * Nuxt 3 Config File
- Usage: https://nuxt.com/docs/api/configuration/nuxt-config
- */
 export default defineNuxtConfig({
-	/**
-	 * * App Config
-	 * app config: https://nuxt.com/docs/api/configuration/nuxt-config#app
-	 * head config: https://nuxt.com/docs/api/configuration/nuxt-config#head
-	 * meta config: https://nuxt.com/docs/getting-started/seo-meta
-	 * pageTransition config: https://nuxt.com/docs/getting-started/transitions#transitions
-	 * TODO: Add more meta tags for SEO
-	 * TODO: Add tags for social media sharing
-	 * TODO: Migrate apple-touch-icon config to manifest.json
-	 */
 	app: {
 		head: {
-			title: siteTitle, // App window nav title
-
+			title: siteTitle,
 			meta: [
 				{ charset: "utf-8" },
 				{
 					name: "viewport",
-					content: "width=device-width, initial-scale=1",
+					content: "width=device-width, initial-scale=1, user-scalable=no",
 				},
-				{ name: "theme-color", content: "#121212" },
-				// ...
+				{ name: "theme-color", content: "#3b82f6" },
+				{ name: "apple-mobile-web-app-capable", content: "yes" },
+				{ name: "apple-mobile-web-app-status-bar-style", content: "default" },
+				{ name: "apple-mobile-web-app-title", content: "GasApp" },
+
+				// SEO
+				{
+					name: "description",
+					content:
+						"GasApp Portugal - Find the best gas prices in Portugal with real-time updates. Compare fuel prices by district and municipality.",
+				},
+				{
+					name: "keywords",
+					content:
+						"gasolina, gasóleo, combustíveis, portugal, preços, postos de combustível, gasolina 95, gasolina 98, gasóleo simples, gasóleo especial",
+				},
+				{ name: "author", content: "GasApp Team" },
+
+				// Open Graph (for social media sharing)
+				{ property: "og:title", content: "GasApp - Portugal" },
+				{
+					property: "og:description",
+					content:
+						"Find the best gas prices in Portugal with real-time updates. Compare fuel prices by district and municipality.",
+				},
+				{ property: "og:url", content: "https://gasapp.jotapebatista.pt" },
+				{ property: "og:type", content: "website" },
+				{ property: "og:image", content: "/images/banner-gh.png" },
+
+				// Twitter Card
+				{ name: "twitter:card", content: "summary_large_image" },
+				{ name: "twitter:title", content: "GasApp - Portugal" },
+				{
+					name: "twitter:description",
+					content:
+						"Find the best gas prices in Portugal with real-time updates.",
+				},
 			],
+
 			link: [
 				{ rel: "manifest", href: "pwa/manifest.json" },
 				{
 					rel: "apple-touch-icon",
 					href: "pwa/icons/apple-touch-icon.png",
 				},
+				{ rel: "icon", type: "image/png", sizes: "32x32", href: "pwa/icons/icon48.png" },
+				{ rel: "icon", type: "image/png", sizes: "16x16", href: "pwa/icons/icon48.png" },
 			],
 		},
 		pageTransition: { name: "page", mode: "out-in" },
 	},
 
-	/**
-	 * * Nuxt 3 Modules
-	 * Official modules: https://nuxt.com/modules
-	 */
 	modules: [
 		"nuxt-icon",
 		"@nuxt/content",
@@ -55,66 +74,26 @@ export default defineNuxtConfig({
 		dirs: ["~/components", "~/components/library"],
 	},
 
-	/**
-	 * * Tailwind CSS Config
-	 * Options: https://tailwindcss.nuxt.dev/getting-started/options/
-	 * Docs: https://tailwindcss.nuxt.dev
-	 */
 	tailwindcss: {
 		cssPath: "~/assets/tailwind.css",
 		configPath: "tailwind.config",
-		exposeConfig: true, // true to resolve the tailwind config in runtime. https://tailwindcss.nuxt.dev/getting-started/options/#exposeconfig
-		//    injectPosition: 0,
-		viewer: true, // set up the /_tailwind/ route. (Disable in production) https://tailwindcss.nuxt.dev/getting-started/options/#viewer
+		exposeConfig: true,
+		viewer: true, // Disable in production
 	},
-vite: {
-	server: {
-		allowedHosts: ['top-dane-clearly.ngrok-free.app']
-	  },
-},
-	/**
-	 * * i18n Config
-	 * Official module: https://nuxt.com/modules/i18n
-	 */
-	//  i18n: {
-	//    defaultLocale: 'en',
-	//    detectBrowserLanguage: false,
-	//    langDir: 'lang/',
-	//    lazy: true,
-	//    locales: [
-	//      {
-	//        code: 'es',
-	//        file: 'es.json',
-	//        iso: 'es-ES',
-	//        name: 'Español',
-	//      },
-	//      {
-	//        code: 'en',
-	//        file: 'en.json',
-	//        iso: 'en-US',
-	//        name: 'English',
-	//      },
-	//  ]},
 
-	/**
-	 * * Color mode Config
-	 * Official module: https://nuxt.com/modules/color-mode
-	 */
 	colorMode: {
 		classSuffix: "",
+		preference: 'system',
+		fallback: 'light',
 	},
-
-	/**
-	 * * Runtime Config (Environment Variables)
-	 * Usage: https://nuxt.com/docs/guide/going-further/runtime-config
-	 */
+	
 	runtimeConfig: {
-		// The private keys which are only available server-side
-		apiSecret: "123",
-		// Keys within public are also exposed client-side
+		apiSecret: "123", 
 		public: {
 			apiBase: "/api",
-			orsApiKey: process.env.ORS_API_KEY
+			orsApiKey: process.env.ORS_API_KEY,
+			supabaseUrl: process.env.SUPABASE_URL,
+			supabaseKey: process.env.SUPABASE_KEY,
 		},
 	},
 

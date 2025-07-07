@@ -103,6 +103,11 @@ const isDropdownOpen = ref(false);
 const selectedValues = ref([...props.modelValue]);
 const dropdownRef = ref(null);
 
+// Watch for changes to modelValue prop
+watch(() => props.modelValue, (newValue) => {
+	selectedValues.value = [...newValue];
+}, { deep: true });
+
 const toggleDropdown = () => {
 	if (!props.disabled) {
 		isDropdownOpen.value = !isDropdownOpen.value;

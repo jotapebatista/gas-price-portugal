@@ -1,8 +1,7 @@
 <template>
 	<NuxtLayout>
-	  <SplashScreen :src="'/favicon.ico'" :time="1000" width="100px" />
+	  <SplashScreen :time="1500" />
 	  <NuxtLoadingIndicator />
-	  <BuyMeACoffeeButton />
 	  <NuxtPage />
 	</NuxtLayout>
   </template>
@@ -21,9 +20,9 @@
 		if ("serviceWorker" in navigator) {
 		  try {
 			const registration = await navigator.serviceWorker.register(workerPath, { scope });
-			// console.log("SW scope:", registration.scope);
+			console.log("Service Worker registered successfully:", registration.scope);
 		  } catch (error) {
-			console.error(`SW registration failed: ${error}`);
+			console.error(`Service Worker registration failed: ${error}`);
 		  }
 		}
 	  },

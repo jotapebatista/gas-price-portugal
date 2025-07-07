@@ -1,13 +1,13 @@
 <template>
 	<div
-		class="w-full max-w-md mx-auto p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-lg space-y-6 animate-fade-in"
+		class="w-full max-w-md mx-auto p-6 bg-white dark:bg-neutral-900 rounded-2xl shadow-lg space-y-6 animate-fade-in"
 	>
 		<div class="space-y-2 text-center">
-			<h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center justify-center gap-2">
+			<h3 class="text-2xl font-bold text-neutral-900 dark:text-white flex items-center justify-center gap-2">
 				<!-- <LocateFixed class="w-6 h-6 text-blue-600 dark:text-blue-400" /> -->
 				Use Your Geolocation?
 			</h3>
-			<p class="text-gray-600 dark:text-gray-300">
+			<p class="text-neutral-600 dark:text-neutral-300">
 				Allow us to detect your location to show gas stations near you.
 			</p>
 		</div>
@@ -15,15 +15,15 @@
 		<div class="flex flex-col sm:flex-row gap-3 justify-center">
 			<button
 				@click="getGeolocation"
-				class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium transition"
+				class="px-5 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium transition"
 			>
 				Yes, Use My Location
 			</button>
 			<button
 				@click="skipGeolocation"
-				class="px-5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition"
+				class="px-5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 font-medium transition"
 			>
-				No, I’ll Select Manually
+				No, I'll Select Manually
 			</button>
 		</div>
 	</div>
@@ -33,6 +33,7 @@
 import Cookies from "js-cookie";
 
 const emit = defineEmits(["useGeolocation", "skipGeolocation"]);
+const { getLocationFromCoordinates } = useGeolocation();
 
 onMounted(async () => {
 	const userChoice = Cookies.get("geolocationPreference");

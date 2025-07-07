@@ -7,15 +7,15 @@
  */
  
 body {
-    @apply dark:bg-gray-dark bg-gray-100 min-h-screen min-w-full;
+    @apply dark:bg-neutral-900 bg-neutral-50 min-h-screen min-w-full;
 }
 
 h1, h2, h3, h4, h5, h6, span {
-    @apply dark:text-gray-100 text-gray-900 font-sf
+    @apply dark:text-neutral-100 text-neutral-900 font-sf
 }
 
 p, li {
-    @apply dark:text-gray-200 text-gray-800
+    @apply dark:text-neutral-200 text-neutral-800
 }
 
 /* Transition Effect (All elements) */

@@ -1,28 +1,27 @@
 <template>
-	<div class="flex items-center space-x-3">
-		<button
-			class="relative inline-flex items-center h-7 w-14 rounded-full transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
-			:class="colorMode.preference === 'dark' ? 'bg-gray-800' : 'bg-yellow-400'"
-			@click="toggleTheme"
-			:title="colorMode.preference === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
-		>
-			<span
-				class="absolute left-1 flex h-5 w-5 items-center justify-center transform rounded-full  text-gray-800 shadow-md transition-all duration-300"
-				:class="colorMode.preference === 'dark' ? 'translate-x-0' : 'translate-x-7'"
-			>
-				<span v-if="colorMode.preference === 'dark'">🌙</span>
-				<span v-else>☀️</span>
-			</span>
-		</button>
-	</div>
+	<button
+		@click="toggle"
+		class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+		:class="modelValue ? 'bg-primary-600' : 'bg-neutral-200 dark:bg-neutral-700'"
+	>
+		<span
+			class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+			:class="modelValue ? 'translate-x-6' : 'translate-x-1'"
+		/>
+	</button>
 </template>
 
 <script setup>
-import { useColorMode } from '#imports'
+const props = defineProps({
+	modelValue: {
+		type: Boolean,
+		default: false
+	}
+});
 
-const colorMode = useColorMode()
+const emit = defineEmits(['update:modelValue']);
 
-const toggleTheme = () => {
-	colorMode.preference = colorMode.preference === 'dark' ? 'light' : 'dark'
-}
+const toggle = () => {
+	emit('update:modelValue', !props.modelValue);
+};
 </script>

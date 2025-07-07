@@ -152,6 +152,8 @@ import polyline from "@mapbox/polyline";
 
 import { onMounted } from "vue";
 
+const { getTravelDistance } = useRouteAPI();
+
 const userIcon = ref<L.Icon | null>(null);
 
 // Fix Leaflet marker icon paths
@@ -242,10 +244,10 @@ const getFuelColor = (fuelType: string) => {
 
 const colorMode = useColorMode();
 
-const isDark = ref(colorMode.value === "dark");
+const isDark = ref(colorMode?.value === "dark");
 
 watch(
-	() => colorMode.value,
+	() => colorMode?.value,
 	(newVal) => {
 		console.log("Color mode changed:", newVal);
 		isDark.value = newVal === "dark";
