@@ -57,7 +57,7 @@
 					@click="navigateToStation"
 					class="flex items-center justify-center gap-2 py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors"
 				>
-					<Icon name="ph:navigation" class="w-4 h-4" />
+					<Icon name="ph:navigation-arrow" class="w-4 h-4" />
 					<span>Navigate</span>
 				</button>
 				

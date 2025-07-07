@@ -17,10 +17,16 @@
     <div class="px-4 py-6 space-y-6">
       <!-- Location Section -->
       <div class="space-y-4">
-        <h2 class="text-lg font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
-          <Icon name="ph:map-pin" class="w-5 h-5 text-primary-600" />
-          Location
-        </h2>
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
+            <Icon name="ph:map-pin" class="w-5 h-5 text-primary-600" />
+            Location
+          </h2>
+          <div v-if="isGeolocationEnabled" class="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400">
+            <Icon name="ph:navigation-arrow" class="w-4 h-4" />
+            <span>Live Location Active</span>
+          </div>
+        </div>
         
         <div class="space-y-4">
           <SelectInput
@@ -41,6 +47,14 @@
             :disabled="!selectedDistrict"
             @update:modelValue="onMunicipalityChange"
           />
+        </div>
+        
+        <!-- Location Success Message -->
+        <div v-if="isLocationSet && isGeolocationEnabled" class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-xl p-3">
+          <div class="flex items-center gap-2 text-green-700 dark:text-green-300">
+            <Icon name="ph:check-circle" class="w-4 h-4" />
+            <span class="text-sm font-medium">Location set to {{ selectedDistrictLabel }}, {{ selectedMunicipalityLabel }}</span>
+          </div>
         </div>
       </div>
 
@@ -70,10 +84,18 @@
         <div class="grid grid-cols-2 gap-3">
           <button
             @click="useCurrentLocation"
-            class="flex items-center justify-center gap-2 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+            :disabled="isLocationLoading || isGeolocationEnabled"
+            class="flex items-center justify-center gap-2 p-4 rounded-xl border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            :class="isGeolocationEnabled 
+              ? 'border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/20' 
+              : 'border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800'"
           >
-            <Icon name="ph:navigation-arrow" class="w-5 h-5 text-primary-600" />
-            <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Use My Location</span>
+            <Icon v-if="isLocationLoading" name="ph:spinner" class="w-5 h-5 text-primary-600 animate-spin" />
+            <Icon v-else-if="isGeolocationEnabled" name="ph:check-circle" class="w-5 h-5 text-primary-600" />
+            <Icon v-else name="ph:navigation-arrow" class="w-5 h-5 text-primary-600" />
+            <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              {{ isLocationLoading ? 'Getting Location...' : isGeolocationEnabled ? 'Location Set' : 'Use My Location' }}
+            </span>
           </button>
           
           <button
@@ -132,6 +154,14 @@ const props = defineProps({
   selectedGasTypes: {
     type: Array,
     default: () => []
+  },
+  isLocationLoading: {
+    type: Boolean,
+    default: false
+  },
+  isGeolocationEnabled: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -162,6 +192,16 @@ const selectedMunicipalityLabel = computed(() => {
   return municipality ? municipality.Descritivo : '';
 });
 
+const selectedDistrictLabel = computed(() => {
+  if (!props.selectedDistrict) return '';
+  const district = props.districts.find(d => d.Id === props.selectedDistrict);
+  return district ? district.Descritivo : '';
+});
+
+const isLocationSet = computed(() => {
+  return props.selectedDistrict && props.selectedMunicipality;
+});
+
 // Methods
 const onDistrictChange = (value) => {
   emit('update:selectedDistrict', value);
@@ -175,7 +215,6 @@ const onMunicipalityChange = (value) => {
 };
 
 const onGasTypesChange = (value) => {
-  console.log('🔥 Gas types changed in FiltersPanel:', value);
   emit('update:selectedGasTypes', value);
 };
 

@@ -1,13 +1,15 @@
 {
     "name": "GasApp Portugal",
     "short_name": "GasApp",
-    "description": "Find the best gas prices in Portugal with real-time updates",
+    "description": "Find the best gas prices in Portugal - Works offline!",
     "start_url": "/",
     "display": "standalone",
     "orientation": "portrait",
-    "background_color": "#000000",
+    "background_color": "#ffffff",
     "theme_color": "#3b82f6",
     "scope": "/",
+    "lang": "pt",
+    "categories": ["utilities", "travel", "navigation"],
     "icons": [{
         "src": "icons/icon48.png",
         "sizes": "48x48",
@@ -37,5 +39,19 @@
         "sizes": "512x512",
         "type": "image/png",
         "purpose": "any maskable"
-      }]
+      }],
+    "shortcuts": [
+      {
+        "name": "Search Prices",
+        "short_name": "Search",
+        "description": "Search for gas prices in your area",
+        "url": "/",
+        "icons": [
+          {
+            "src": "icons/icon192.png",
+            "sizes": "192x192"
+          }
+        ]
+      }
+    ]
 }

@@ -1,5 +1,23 @@
 <template>
 	<div class="h-screen flex flex-col overflow-hidden bg-neutral-50 dark:bg-neutral-900">
+		<!-- Data Preloader -->
+		<DataPreloader 
+			:show-preloader="showDataPreloader"
+			@complete="handleDataPreloaderComplete"
+			@skip="handleDataPreloaderSkip"
+		/>
+		
+		<!-- First Launch Modal -->
+		<FirstLaunchModal 
+			:show="showFirstLaunchModal"
+			@complete="handleFirstLaunchComplete"
+		/>
+		
+		<!-- Offline Indicator -->
+		<OfflineIndicator />
+		
+		<!-- Main App Content -->
+		<div v-if="isAppReady" class="h-full flex flex-col">
 		<!-- Header -->
 		<header class="flex-shrink-0 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700 px-4 py-3">
 			<div class="flex items-center justify-between">
@@ -40,6 +58,7 @@
 				<StationMap 
 					:stations="stations" 
 					:user-location="userCoords" 
+					:favorite-station-ids="favoriteStations.map(s => s.Id)"
 					class="h-full"
 				/>
 				
@@ -62,6 +81,8 @@
 					:selected-district="selectedDistrict"
 					:selected-municipality="selectedMunicipality"
 					:selected-gas-types="selectedGasTypes"
+					:is-location-loading="isLocationLoading"
+					:is-geolocation-enabled="isGeolocationEnabled"
 					@update:selected-district="selectedDistrict = $event"
 					@update:selected-municipality="selectedMunicipality = $event"
 					@update:selected-gas-types="selectedGasTypes = $event"
@@ -184,6 +205,42 @@
 					</h2>
 					
 					<div class="space-y-6">
+						<!-- App Mode -->
+						<div class="bg-white dark:bg-neutral-900 rounded-2xl p-4 border border-neutral-200 dark:border-neutral-700">
+							<div class="flex items-center justify-between mb-4">
+								<div>
+									<h3 class="font-semibold text-neutral-900 dark:text-white">App Mode</h3>
+									<p class="text-sm text-neutral-600 dark:text-neutral-400">
+										{{ getAppMode === 'offline' ? 'Offline mode - Data cached locally' : 'Live mode - Always fetch latest data' }}
+									</p>
+								</div>
+								<Icon 
+									:name="getAppMode === 'offline' ? 'ph:device-mobile' : 'ph:wifi-high'" 
+									class="w-5 h-5 text-primary-600" 
+								/>
+							</div>
+							<div class="flex gap-2">
+								<button
+									@click="setAppMode('offline')"
+									class="flex-1 py-2 px-4 text-sm rounded-lg transition-colors"
+									:class="getAppMode === 'offline' 
+										? 'bg-primary-600 text-white' 
+										: 'bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600'"
+								>
+									Offline
+								</button>
+								<button
+									@click="setAppMode('live')"
+									class="flex-1 py-2 px-4 text-sm rounded-lg transition-colors"
+									:class="getAppMode === 'live' 
+										? 'bg-primary-600 text-white' 
+										: 'bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600'"
+								>
+									Live
+								</button>
+							</div>
+						</div>
+
 						<!-- Theme Toggle -->
 						<div class="bg-white dark:bg-neutral-900 rounded-2xl p-4 border border-neutral-200 dark:border-neutral-700">
 							<div class="flex items-center justify-between">
@@ -203,15 +260,49 @@
 								<div>
 									<h3 class="font-semibold text-neutral-900 dark:text-white">Location</h3>
 									<p class="text-sm text-neutral-600 dark:text-neutral-400">
-										Manage location permissions
+										{{ getGeolocationEnabled ? 'Location access enabled' : 'Location access disabled' }}
 									</p>
 								</div>
+								<Icon 
+									:name="getGeolocationEnabled ? 'ph:map-pin-fill' : 'ph:map-pin'" 
+									class="w-5 h-5 text-primary-600" 
+								/>
 							</div>
 							<button
 								@click="requestLocationPermission"
 								class="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-medium transition-colors"
 							>
-								Enable Location Access
+								{{ getGeolocationEnabled ? 'Manage Location Access' : 'Enable Location Access' }}
+							</button>
+						</div>
+
+						<!-- Data Status -->
+						<div class="bg-white dark:bg-neutral-900 rounded-2xl p-4 border border-neutral-200 dark:border-neutral-700">
+							<div class="flex items-center justify-between mb-4">
+								<div>
+									<h3 class="font-semibold text-neutral-900 dark:text-white">Offline Data</h3>
+									<p class="text-sm text-neutral-600 dark:text-neutral-400">
+										{{ isDataPreloaded ? 'Data available offline' : 'No offline data available' }}
+									</p>
+								</div>
+								<Icon 
+									:name="isDataPreloaded ? 'ph:check-circle' : 'ph:x-circle'" 
+									:class="isDataPreloaded ? 'w-5 h-5 text-green-600' : 'w-5 h-5 text-red-600'" 
+								/>
+							</div>
+							<button
+								v-if="!isDataPreloaded"
+								@click="showDataPreloader = true"
+								class="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-medium transition-colors"
+							>
+								Download Offline Data
+							</button>
+							<button
+								v-else
+								@click="clearOfflineData"
+								class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-medium transition-colors"
+							>
+								Clear Offline Data
 							</button>
 						</div>
 
@@ -264,13 +355,24 @@
 				</div>
 			</div>
 		</div>
+		</div>
 	</div>
 </template>
 
 <script setup>
-const { fetchDistricts, fetchMunicipalities, fetchStations, fetchFuelTypes } = useGasStationsAPI();
+const { fetchDistricts, fetchMunicipalities, fetchStations, fetchFuelTypes, isOnline, isInitialized } = useEnhancedGasStationsAPI();
 const { colorMode } = useColorMode();
 const { getDistanceFromLatLonInKm } = useDistance();
+const { getLocationFromCoordinates } = useGeolocation();
+const { 
+	setAppMode, 
+	setGeolocationEnabled, 
+	getAppMode, 
+	getGeolocationEnabled, 
+	hasCompletedFirstLaunch, 
+	isDataPreloaded,
+	markDataPreloaded
+} = useUserPreferences();
 
 // State
 const activeTab = ref('map');
@@ -285,19 +387,18 @@ const userCoords = ref({ latitude: null, longitude: null });
 const watchId = ref(null);
 const showGeolocationModal = ref(false);
 const favoriteStations = ref([]);
+const isLocationLoading = ref(false);
+const isGeolocationSetting = ref(false);
+const showDataPreloader = ref(true);
+const isAppReady = ref(false);
+const showFirstLaunchModal = ref(false);
 
 // Selection
 const selectedDistrict = ref("");
 const selectedMunicipality = ref("");
 const selectedGasTypes = ref([]);
 
-// Load favorites from localStorage
-onMounted(() => {
-	const savedFavorites = localStorage.getItem('gasapp-favorites');
-	if (savedFavorites) {
-		favoriteStations.value = JSON.parse(savedFavorites);
-	}
-});
+
 
 // Computed properties
 const districtOptions = computed(() =>
@@ -328,6 +429,50 @@ const toggleTheme = (isDark) => {
 const refreshData = async () => {
 	if (selectedDistrict.value && selectedMunicipality.value && selectedGasTypes.value.length) {
 		await load();
+	}
+};
+
+// Handle first launch completion
+const handleFirstLaunchComplete = (preferences) => {
+	showFirstLaunchModal.value = false;
+	
+	// Handle geolocation if enabled
+	if (preferences.geolocationEnabled) {
+		enableGeolocation();
+	}
+	
+	// Handle app mode
+	if (preferences.appMode === 'offline' && !isDataPreloaded.value) {
+		showDataPreloader.value = true;
+	} else {
+		showDataPreloader.value = false;
+		isAppReady.value = true;
+		loadInitialData();
+	}
+};
+
+// Clear offline data
+const clearOfflineData = async () => {
+	const { clearAllData } = useOfflineData();
+	await clearAllData();
+	// Refresh the page to reset state
+	window.location.reload();
+};
+
+// Load initial data
+const loadInitialData = async () => {
+	loading.value = true;
+	
+	try {
+		const districtsResponse = await fetchDistricts();
+		districts.value = districtsResponse.resultado || [];
+		
+		const fuelsResponse = await fetchFuelTypes();
+		fuels.value = fuelsResponse;
+	} catch (error) {
+		// Silently handle initialization errors
+	} finally {
+		loading.value = false;
 	}
 };
 
@@ -398,27 +543,118 @@ const requestLocationPermission = () => {
 	showGeolocationModal.value = true;
 };
 
-const enableGeolocation = () => {
+const enableGeolocation = async () => {
 	showGeolocationModal.value = false;
+	isLocationLoading.value = true;
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(
-			(position) => {
+			async (position) => {
 				const { latitude, longitude } = position.coords;
 				userCoords.value = { latitude, longitude };
 				isGeolocationEnabled.value = true;
 				startLiveGeolocation();
+				
+				// Use reverse geocoding to auto-fill location
+				try {
+					const locationData = await getLocationFromCoordinates(latitude, longitude);
+					
+					// Auto-fill district and municipality if we have the data
+					if (locationData && locationData.district && locationData.municipality && districts.value && districts.value.length > 0) {
+						// Try to find matching district
+						const selectedGeoDistrict = districts.value.find(
+							(d) => {
+								const districtName = d.Descritivo.toLowerCase();
+								const geoDistrict = locationData.district.toLowerCase();
+								
+								// Exact match
+								if (districtName === geoDistrict) return true;
+								
+								// Contains match
+								if (districtName.includes(geoDistrict) || geoDistrict.includes(districtName)) return true;
+								
+								// Handle common variations
+								const variations = {
+									'lisboa': 'lisboa',
+									'porto': 'porto',
+									'braga': 'braga',
+									'coimbra': 'coimbra',
+									'aveiro': 'aveiro',
+									'faro': 'faro',
+									'setubal': 'setúbal',
+									'leiria': 'leiria',
+									'santarem': 'santarém',
+									'viana do castelo': 'viana do castelo',
+									'vila real': 'vila real',
+									'braganca': 'bragança',
+									'guarda': 'guarda',
+									'castelo branco': 'castelo branco',
+									'portalegre': 'portalegre',
+									'evora': 'évora',
+									'beja': 'beja'
+								};
+								
+								return variations[geoDistrict] === districtName || variations[districtName] === geoDistrict;
+							}
+						);
+
+						if (selectedGeoDistrict) {
+							// Fetch municipalities for this district
+							const districtId = typeof selectedGeoDistrict.Id === 'string' ? parseInt(selectedGeoDistrict.Id) : selectedGeoDistrict.Id;
+							municipalities.value = (await fetchMunicipalities(districtId)).resultado || [];
+
+							// Try to find matching municipality
+							const selectedGeoMunicipality = municipalities.value.find(
+								(m) => {
+									const municipalityName = m.Descritivo.toLowerCase();
+									const geoMunicipality = locationData.municipality.toLowerCase();
+									
+									// Exact match
+									if (municipalityName === geoMunicipality) return true;
+									
+									// Contains match
+									if (municipalityName.includes(geoMunicipality) || geoMunicipality.includes(municipalityName)) return true;
+									
+									return false;
+								}
+							);
+
+							if (selectedGeoMunicipality) {
+								// Set flag to prevent watcher conflicts
+								isGeolocationSetting.value = true;
+								
+								// Set values as integers (not strings)
+								selectedDistrict.value = selectedGeoDistrict.Id;
+								selectedMunicipality.value = selectedGeoMunicipality.Id;
+								
+								// Clear flag after a longer delay to ensure all watchers have processed
+								setTimeout(() => {
+									isGeolocationSetting.value = false;
+								}, 500);
+							} else {
+								// Still set the district even if municipality doesn't match
+								selectedDistrict.value = selectedGeoDistrict.Id;
+							}
+						}
+					}
+				} catch (error) {
+					// Silently handle geolocation errors
+				}
 			},
 			(error) => {
-				console.error("Error getting geolocation:", error);
+				// Silently handle geolocation errors
 			}
 		);
 	}
+	isLocationLoading.value = false;
 };
 
 const onDistrictChange = async () => {
-	selectedMunicipality.value = "";
-	selectedGasTypes.value = [];
-	stations.value = [];
+	// Don't clear municipality if we're setting location via geolocation
+	if (!isGeolocationSetting.value) {
+		selectedMunicipality.value = "";
+		selectedGasTypes.value = [];
+		stations.value = [];
+	}
 
 	if (!selectedDistrict.value) return;
 
@@ -431,23 +667,19 @@ const onDistrictChange = async () => {
 };
 
 const onMunicipalityChange = () => {
-	selectedGasTypes.value = [];
-	stations.value = [];
+	// Don't clear gas types if we're setting location via geolocation
+	if (!isGeolocationSetting.value) {
+		selectedGasTypes.value = [];
+		stations.value = [];
+	}
 };
 
 const load = async () => {
-	console.log('🔍 Load function called with:', {
-		district: selectedDistrict.value,
-		municipality: selectedMunicipality.value,
-		gasTypes: selectedGasTypes.value
-	});
-
 	if (
 		!selectedDistrict.value ||
 		!selectedMunicipality.value ||
 		!selectedGasTypes.value.length
 	) {
-		console.log('❌ Missing required fields, returning early');
 		return;
 	}
 
@@ -456,18 +688,11 @@ const load = async () => {
 	stations.value = [];
 
 	const fuelTypeIds = selectedGasTypes.value.map((type) => type.value);
-	console.log('⛽ Fuel type IDs:', fuelTypeIds);
 
 	try {
 		// Convert to numbers for API call
 		const districtId = typeof selectedDistrict.value === 'string' ? parseInt(selectedDistrict.value) : selectedDistrict.value;
 		const municipalityId = typeof selectedMunicipality.value === 'string' ? parseInt(selectedMunicipality.value) : selectedMunicipality.value;
-		
-		console.log('🌐 Making API call with:', {
-			idDistrito: districtId,
-			idsMunicipios: [municipalityId],
-			idsTiposComb: fuelTypeIds.join(",")
-		});
 
 		const data = await fetchStations({
 			idDistrito: districtId,
@@ -475,15 +700,10 @@ const load = async () => {
 			idsTiposComb: fuelTypeIds.join(","),
 		});
 
-		console.log('📡 API Response:', data);
-
 		if (!data || !data.resultado || !Array.isArray(data.resultado)) {
-			console.log('❌ Invalid API response');
 			stations.value = [];
 			return;
 		}
-
-		console.log(`✅ Found ${data.resultado.length} station records`);
 
 		const groupedStations = {};
 		data.resultado.forEach((station) => {
@@ -500,7 +720,6 @@ const load = async () => {
 		});
 
 		let stationsArray = Object.values(groupedStations);
-		console.log(`🏪 Grouped into ${stationsArray.length} unique stations`);
 
 		if (
 			isGeolocationEnabled.value &&
@@ -520,9 +739,7 @@ const load = async () => {
 		}
 
 		stations.value = stationsArray;
-		console.log('✅ Stations loaded successfully:', stations.value.length);
 	} catch (error) {
-		console.error("❌ Error loading stations:", error);
 		stations.value = [];
 	} finally {
 		loading.value = false;
@@ -531,7 +748,6 @@ const load = async () => {
 
 const handleNavigate = (station) => {
 	// Handle navigation action
-	console.log('Navigate to:', station);
 };
 
 const isFavorite = (stationId) => {
@@ -553,42 +769,49 @@ const toggleFavorite = (station) => {
 
 // Watch for changes
 watch(selectedDistrict, (newVal, oldVal) => {
-	console.log('👀 District changed:', { old: oldVal, new: newVal });
-	onDistrictChange();
+	if (!isGeolocationSetting.value) {
+		onDistrictChange();
+	}
 });
 watch(selectedMunicipality, (newVal, oldVal) => {
-	console.log('👀 Municipality changed:', { old: oldVal, new: newVal });
-	onMunicipalityChange();
+	if (!isGeolocationSetting.value) {
+		onMunicipalityChange();
+	}
 });
 watch(selectedGasTypes, (newVal, oldVal) => {
-	console.log('👀 Gas types changed:', { 
-		old: oldVal?.length || 0, 
-		new: newVal?.length || 0,
-		oldValues: oldVal?.map(v => v.value) || [],
-		newValues: newVal?.map(v => v.value) || []
-	});
 	load();
 }, { deep: true });
 
-// On mount, load districts and fuel types
+// Handle data preloader completion
+const handleDataPreloaderComplete = () => {
+	showDataPreloader.value = false;
+	isAppReady.value = true;
+	markDataPreloaded();
+	loadInitialData();
+};
+
+const handleDataPreloaderSkip = () => {
+	showDataPreloader.value = false;
+	isAppReady.value = true;
+	loadInitialData();
+};
+
+// On mount, check if we need to show preloader or first launch modal
 onMounted(async () => {
-	console.log('🚀 App mounted, loading initial data...');
-	loading.value = true;
+	// Load favorites from localStorage
+	const savedFavorites = localStorage.getItem('gasapp-favorites');
+	if (savedFavorites) {
+		favoriteStations.value = JSON.parse(savedFavorites);
+	}
 	
-	try {
-		const districtsResponse = await fetchDistricts();
-		console.log('🏛️ Districts response:', districtsResponse);
-		districts.value = districtsResponse.resultado || [];
-		console.log(`✅ Loaded ${districts.value.length} districts`);
-		
-		const fuelsResponse = await fetchFuelTypes();
-		console.log('⛽ Fuels response:', fuelsResponse);
-		fuels.value = fuelsResponse;
-		console.log(`✅ Loaded ${fuels.value.length} fuel types`);
-	} catch (error) {
-		console.error('❌ Error loading initial data:', error);
-	} finally {
-		loading.value = false;
+	// Check if this is the first launch
+	if (!hasCompletedFirstLaunch.value) {
+		showFirstLaunchModal.value = true;
+	} else if (isInitialized.value) {
+		// If data is already initialized, skip preloader
+		showDataPreloader.value = false;
+		isAppReady.value = true;
+		loadInitialData();
 	}
 });
 

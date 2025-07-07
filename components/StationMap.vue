@@ -51,6 +51,7 @@
 					v-for="station in stations"
 					:key="station.Id"
 					:lat-lng="[station.Latitude, station.Longitude]"
+					:icon="getStationIcon(station.Id)"
 				>
 					<LPopup>
 						<div
@@ -66,17 +67,16 @@
 								<h3 class="font-bold text-base">
 									{{ station.Nome }}
 								</h3>
-								<!-- <div
-									class="flex items-center gap-1 text-gray-400 text-xs"
-								>
-									<Icon
-										name="ph:map-trifold"
-										class="w-4 h-4"
-									/>
-									<span>{{
-										formatDistance(station.distance)
-									}}</span>
-								</div> -->
+								<div class="flex items-center gap-2">
+									<div v-if="isStationFavorite(station.Id)" class="flex items-center gap-1 text-yellow-600 dark:text-yellow-400">
+										<Icon name="ph:star-fill" class="w-4 h-4" />
+										<span class="text-xs font-medium">Favorite</span>
+									</div>
+									<div v-if="station.distance" class="flex items-center gap-1 text-gray-400 text-xs">
+										<Icon name="ph:map-trifold" class="w-4 h-4" />
+										<span>{{ formatDistance(station.distance) }}</span>
+									</div>
+								</div>
 							</div>
 
 							<!-- Address -->
@@ -106,7 +106,7 @@
 							</ul>
 
 							<!-- Navigation Button -->
-							<div class="flex justify-between">
+							<div class="flex justify-end">
 								<a
 									:href="`https://www.google.com/maps/dir/?api=1&destination=${station.Latitude},${station.Longitude}`"
 									target="_blank"
@@ -123,12 +123,12 @@
 										<span>Navigate</span>
 									</div>
 								</a>
-								<button
+								<!--button
 									@click="showRouteToStation(station)"
 									class="mt-2 bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded text-sm"
 								>
 									Show Route
-								</button>
+								</button-->
 							</div>
 							<!--  -->
 						</div>
@@ -155,6 +155,8 @@ import { onMounted } from "vue";
 const { getTravelDistance } = useRouteAPI();
 
 const userIcon = ref<L.Icon | null>(null);
+const regularStationIcon = ref<L.Icon | null>(null);
+const favoriteStationIcon = ref<L.Icon | null>(null);
 
 // Fix Leaflet marker icon paths
 onMounted(async () => {
@@ -172,9 +174,35 @@ onMounted(async () => {
 			import.meta.url
 		).href,
 	});
+	
+	// User location icon (red)
 	userIcon.value = L.icon({
 		iconUrl:
 			"https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+		shadowUrl:
+			"https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+		iconSize: [25, 41],
+		iconAnchor: [12, 41],
+		popupAnchor: [1, -34],
+		shadowSize: [41, 41],
+	});
+	
+	// Regular station icon (blue)
+	regularStationIcon.value = L.icon({
+		iconUrl:
+			"https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
+		shadowUrl:
+			"https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+		iconSize: [25, 41],
+		iconAnchor: [12, 41],
+		popupAnchor: [1, -34],
+		shadowSize: [41, 41],
+	});
+	
+	// Favorite station icon (gold/star)
+	favoriteStationIcon.value = L.icon({
+		iconUrl:
+			"https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png",
 		shadowUrl:
 			"https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
 		iconSize: [25, 41],
@@ -198,6 +226,7 @@ const props = defineProps<{
 		latitude: number | null;
 		longitude: number | null;
 	};
+	favoriteStationIds?: number[];
 }>();
 
 const defaultCenter = ref<[number, number]>([39.5, -8]);
@@ -220,6 +249,14 @@ const formatDistance = (distance: number) => {
 	if (!distance) return "";
 	if (distance < 1) return `${Math.round(distance * 1000)} m`;
 	return `${distance.toFixed(1)} km`;
+};
+
+const isStationFavorite = (stationId: number) => {
+	return props.favoriteStationIds?.includes(stationId) || false;
+};
+
+const getStationIcon = (stationId: number) => {
+	return isStationFavorite(stationId) ? favoriteStationIcon.value : regularStationIcon.value;
 };
 
 const getFuelColor = (fuelType: string) => {
