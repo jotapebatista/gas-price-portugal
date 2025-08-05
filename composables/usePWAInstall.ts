@@ -3,13 +3,32 @@ export const usePWAInstall = () => {
   const canInstall = ref(false)
   const isMobile = ref(false)
   const deferredPrompt = ref<any>(null)
+  const debugInfo = ref({
+    userAgent: '',
+    displayMode: '',
+    isStandalone: false,
+    hasBeforeInstallPrompt: false
+  })
 
   // Check if running as PWA
   const checkIfInstalled = () => {
     if (process.client) {
-      // Check if running in standalone mode (installed PWA)
-      isInstalled.value = window.matchMedia('(display-mode: standalone)').matches ||
-                          (window.navigator as any).standalone === true
+      const displayMode = window.matchMedia('(display-mode: standalone)').matches
+      const isStandalone = (window.navigator as any).standalone === true
+      
+      isInstalled.value = displayMode || isStandalone
+      
+      // Debug info
+      debugInfo.value.displayMode = displayMode ? 'standalone' : 'browser'
+      debugInfo.value.isStandalone = isStandalone
+      debugInfo.value.userAgent = navigator.userAgent
+      
+      console.log('PWA Install Debug:', {
+        isInstalled: isInstalled.value,
+        displayMode,
+        isStandalone,
+        userAgent: navigator.userAgent
+      })
     }
   }
 
@@ -24,10 +43,22 @@ export const usePWAInstall = () => {
   const setupInstallListener = () => {
     if (process.client) {
       window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('beforeinstallprompt event fired!')
         e.preventDefault()
         deferredPrompt.value = e
         canInstall.value = true
+        debugInfo.value.hasBeforeInstallPrompt = true
       })
+      
+      // Also check if the event was already fired
+      setTimeout(() => {
+        console.log('PWA Install Status:', {
+          canInstall: canInstall.value,
+          isInstalled: isInstalled.value,
+          isMobile: isMobile.value,
+          hasDeferredPrompt: !!deferredPrompt.value
+        })
+      }, 2000)
     }
   }
 
@@ -71,6 +102,7 @@ export const usePWAInstall = () => {
     isInstalled: readonly(isInstalled),
     canInstall: readonly(canInstall),
     isMobile: readonly(isMobile),
-    installPWA
+    installPWA,
+    debugInfo: readonly(debugInfo)
   }
 }

@@ -22,6 +22,7 @@ export default defineNuxtConfig({
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
+        id: '/',
         icons: [
           {
             src: '/ios-style-icon.png',
