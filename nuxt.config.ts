@@ -25,13 +25,13 @@ export default defineNuxtConfig({
         id: '/',
         icons: [
           {
-            src: '/ios-style-icon.png',
+            src: '/new_logo.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
           },
           {
-            src: '/ios-style-icon-192.png',
+            src: '/new_logo.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any maskable'

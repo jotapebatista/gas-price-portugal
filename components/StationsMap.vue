@@ -46,14 +46,8 @@
 				</div>
 			</div>
 
-			<!-- Map Header -->
-			<!--MapHeader />
-
 			<!-- Map Controls -->
 			<MapControls :map="map" />
-
-			<!-- Results Badge -->
-			<ResultsBadge :count="stations.length" />
 
 			<!-- Results Badge -->
 			<ResultsBadge :count="stations.length" />
