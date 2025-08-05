@@ -12,8 +12,8 @@ export default defineNuxtConfig({
     ['@vite-pwa/nuxt', {
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Preços Combustíveis Portugal',
-        short_name: 'Combustíveis',
+        name: 'Gazly',
+        short_name: 'Gazly',
         description: 'Encontre os melhores preços de combustível em Portugal',
         theme_color: '#0ea5e9',
         background_color: '#ffffff',

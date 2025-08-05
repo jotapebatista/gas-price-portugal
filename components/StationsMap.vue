@@ -157,8 +157,11 @@ watch(
 					shadowUrl:
 						"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 				});
-				// Create map centered on Portugal
-				map.value = L.default.map(newContainer).setView([39.5, -8], 7);
+				// Create map centered on Portugal with custom controls disabled
+				map.value = L.default.map(newContainer, {
+					zoomControl: false, // Disable default zoom controls
+					attributionControl: false // Disable default attribution control
+				}).setView([39.5, -8], 7);
 				// Add tile layer based on current theme
 				updateMapTiles(L.default);
 				// Force map to resize after initialization
