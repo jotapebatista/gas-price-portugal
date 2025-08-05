@@ -99,6 +99,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxtjs/i18n',
     '@nuxtjs/device',
+    '@nuxt/icon',
     ['@nuxtjs/google-fonts', {
       families: {
         Inter: [400, 500, 700],
@@ -112,7 +113,19 @@ export default defineNuxtConfig({
     locales: [
       { code: 'en', name: 'English', file: 'en.json' },
       { code: 'pt', name: 'Português', file: 'pt.json' }
-    ]
+    ],
+    strategy: 'no_prefix',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      redirectOn: 'root',
+    },
+    bundle: {
+      optimizeTranslationDirective: false
+    },
+    debug: true,
+    lazy: false,
+    vueI18n: '~/i18n.config.ts'
   },
   colorMode: {
     classSuffix: '',

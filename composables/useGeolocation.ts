@@ -9,10 +9,15 @@ export function useGeolocation() {
 
       if (data.results && data.results.length > 0) {
         const components = data.results[0]?.components || {};
-        const district = components.county || "Unknown District";
-        const municipality = components.city || "Unknown Municipality";
-		console.log("district", district)
-		console.log("municipality", municipality)
+        // For Portugal, we need to look at different fields
+        // The API might return different field names depending on the location
+        const district = components.county || components.state || components.administrative_area_level_1 || "Unknown District";
+        const municipality = components.city || components.town || components.village || components.administrative_area_level_2 || "Unknown Municipality";
+        
+        console.log("OpenCage components:", components);
+        console.log("district", district);
+        console.log("municipality", municipality);
+        
         return { district, municipality };
       } else {
         return {

@@ -1,23 +1,98 @@
 <template>
 	<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-		<!-- Full Screen Map View -->
-		<StationsMap
-			:stations="groupedStations"
-			:fuel-types="fuelTypes"
-			:districts="districts"
-			:municipalities="municipalities"
-			:selected-fuel-types="selectedFuelTypes"
-			:selected-district="selectedDistrict"
-			:selected-municipality="selectedMunicipality"
-			:loading="loading"
-			@update:selected-fuel-types="selectedFuelTypes = $event"
-			@update:selected-district="selectedDistrict = $event"
-			@update:selected-municipality="selectedMunicipality = $event"
-			@fuel-type-change="onFuelTypeChange"
-			@district-change="onDistrictChange"
-			@municipality-change="onMunicipalityChange"
-			@search="searchStations"
-		/>
+		<!-- Main Content Area -->
+		<div class="flex flex-col h-screen">
+			<!-- Content Area -->
+			<div class="flex-1 relative">
+				<!-- Map View (always visible) -->
+				<div class="absolute inset-0">
+					<StationsMap
+						:stations="groupedStations"
+						:fuel-types="fuelTypes"
+						:districts="districts"
+						:municipalities="municipalities"
+						:selected-fuel-types="selectedFuelTypes"
+						:selected-district="selectedDistrict"
+						:selected-municipality="selectedMunicipality"
+						:loading="loading"
+						@update:selected-fuel-types="selectedFuelTypes = $event"
+						@update:selected-district="selectedDistrict = $event"
+						@update:selected-municipality="selectedMunicipality = $event"
+						@fuel-type-change="onFuelTypeChange"
+						@district-change="onDistrictChange"
+						@municipality-change="onMunicipalityChange"
+						@search="searchStations"
+					/>
+				</div>
+
+				<!-- Overlay Panels -->
+				<div 
+					v-if="activeTab !== 'map'"
+					class="absolute inset-0 bg-black/50 z-[999]"
+					@click="activeTab = 'map'"
+				></div>
+
+				<!-- Filters Panel -->
+				<div
+					v-if="activeTab === 'filters'"
+					class="absolute inset-0 z-[1000] flex flex-col"
+				>
+					<div class="flex-1 overflow-hidden">
+						<FiltersPanel
+							:fuel-types="fuelTypes"
+							:districts="districts"
+							:municipalities="municipalities"
+							:selected-fuel-types="selectedFuelTypes"
+							:selected-district="selectedDistrict"
+							:selected-municipality="selectedMunicipality"
+							:loading="loading"
+							@update:selected-fuel-types="selectedFuelTypes = $event"
+							@update:selected-district="selectedDistrict = $event"
+							@update:selected-municipality="selectedMunicipality = $event"
+							@fuel-type-change="onFuelTypeChange"
+							@district-change="onDistrictChange"
+							@municipality-change="onMunicipalityChange"
+							@search="searchStations"
+						/>
+					</div>
+				</div>
+
+				<!-- Results Panel -->
+				<div
+					v-if="activeTab === 'results'"
+					class="absolute inset-0 z-[1000] flex flex-col"
+				>
+					<div class="flex-1 overflow-hidden">
+						<ResultsPanel
+							:stations="groupedStations"
+							:loading="loading"
+							@show-on-map="showStationOnMap"
+						/>
+					</div>
+				</div>
+
+				<!-- Settings Panel -->
+				<div
+					v-if="activeTab === 'settings'"
+					class="absolute inset-0 z-[1000] flex flex-col"
+				>
+					<div class="flex-1 overflow-hidden">
+						<SettingsPanel />
+					</div>
+				</div>
+			</div>
+
+			<!-- Bottom Navigation -->
+			<BottomNavigation
+				:active-tab="activeTab"
+				:has-active-filters="hasActiveFilters"
+				:results-count="groupedStations.length"
+				@update:active-tab="activeTab = $event"
+			/>
+		</div>
+
+		<!-- PWA Install Prompt -->
+		<PWAInstallPrompt />
 	</div>
 </template>
 
@@ -42,6 +117,7 @@ const selectedFuelTypes: Ref<number[]> = ref([]);
 const selectedDistrict = ref("");
 const selectedMunicipality = ref("");
 const hasSearched = ref(false);
+const activeTab = ref("map");
 
 // Load initial data
 onMounted(async () => {
@@ -50,6 +126,15 @@ onMounted(async () => {
 	} catch (err) {
 		console.error("Error loading initial data:", err);
 	}
+});
+
+// Computed properties
+const hasActiveFilters = computed(() => {
+	return (
+		selectedFuelTypes.value.length > 0 ||
+		selectedDistrict.value !== "" ||
+		selectedMunicipality.value !== ""
+	);
 });
 
 // Event handlers
@@ -106,4 +191,11 @@ const searchStations = async () => {
     console.error('Error searching stations:', err)
   }
 }
+
+const showStationOnMap = (station: any) => {
+	// Switch to map tab and center on the selected station
+	activeTab.value = "map";
+	// You can add logic here to center the map on the selected station
+	// This would require passing the station data to the map component
+};
 </script>

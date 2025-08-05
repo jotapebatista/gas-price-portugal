@@ -78,6 +78,7 @@ export function useGasStationsAPI() {
           id: district.Id,
           nome: district.Descritivo
         }))
+        .sort((a: District, b: District) => a.nome.localeCompare(b.nome, 'pt')) // Sort alphabetically in Portuguese
       return districts.value
     } catch (err) {
       error.value = 'Erro ao carregar distritos'
@@ -104,6 +105,7 @@ export function useGasStationsAPI() {
           nome: municipality.Descritivo,
           idDistrito: districtId
         }))
+        .sort((a: Municipality, b: Municipality) => a.nome.localeCompare(b.nome, 'pt')) // Sort alphabetically in Portuguese
       
       return municipalities.value
     } catch (err) {
