@@ -1,0 +1,42 @@
+{
+  "name": "Preços Combustíveis Portugal",
+  "short_name": "Combustíveis",
+  "description": "Encontre os melhores preços de combustível em Portugal",
+  "theme_color": "#0ea5e9",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "lang": "pt",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "id": "/",
+  "icons": [
+    {
+      "src": "/ios-style-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ios-style-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "travel"],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+} 

@@ -56,6 +56,28 @@ export const usePWAInstall = () => {
       const manifestLink = document.querySelector('link[rel="manifest"]')
       if (manifestLink) {
         console.log('Manifest link found:', manifestLink.getAttribute('href'))
+        
+        // Test if manifest is actually accessible
+        const manifestHref = manifestLink.getAttribute('href')
+        if (manifestHref) {
+          fetch(manifestHref)
+            .then(response => {
+              if (response.ok) {
+                console.log('Manifest is accessible')
+                return response.json()
+              } else {
+                console.log('Manifest not accessible:', response.status)
+              }
+            })
+            .then(data => {
+              if (data) {
+                console.log('Manifest content:', data)
+              }
+            })
+            .catch(error => {
+              console.log('Manifest fetch error:', error)
+            })
+        }
       } else {
         console.log('No manifest link found')
       }

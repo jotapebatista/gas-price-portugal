@@ -27,6 +27,20 @@
       Force Show Install
     </button>
   </div>
+
+  <!-- Mobile-friendly debug panel (always visible on mobile) -->
+  <div v-if="isMobile && !isDev" class="fixed top-4 left-4 z-[1001] bg-blue-600 text-white p-3 rounded-lg text-xs max-w-xs">
+    <div class="font-bold mb-1">PWA Status:</div>
+    <div>Install: {{ canInstall ? '✅' : '❌' }}</div>
+    <div>Installed: {{ isInstalled ? '✅' : '❌' }}</div>
+    <div>Manifest: {{ hasManifest ? '✅' : '❌' }}</div>
+    <button 
+      @click="forceShowInstall" 
+      class="mt-2 bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold"
+    >
+      Test Install
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
