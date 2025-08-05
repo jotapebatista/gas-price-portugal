@@ -17,6 +17,9 @@
     <div>Is Installed: {{ isInstalled }}</div>
     <div>Display Mode: {{ debugInfo.displayMode }}</div>
     <div>Has Prompt: {{ debugInfo.hasBeforeInstallPrompt }}</div>
+    <div>HTTPS: {{ isHTTPS }}</div>
+    <div>Service Worker: {{ hasServiceWorker }}</div>
+    <div>Manifest: {{ hasManifest }}</div>
     <button 
       @click="forceShowInstall" 
       class="mt-2 bg-red-500 text-white px-2 py-1 rounded text-xs"
@@ -33,6 +36,28 @@ const { isInstalled, canInstall, isMobile, installPWA, debugInfo } = usePWAInsta
 // Development mode check
 const isDev = process.dev
 
+// Browser API checks
+const isHTTPS = computed(() => {
+  if (process.client) {
+    return window.location.protocol === 'https:'
+  }
+  return false
+})
+
+const hasServiceWorker = computed(() => {
+  if (process.client) {
+    return 'serviceWorker' in window.navigator
+  }
+  return false
+})
+
+const hasManifest = computed(() => {
+  if (process.client) {
+    return !!document.querySelector('link[rel="manifest"]')
+  }
+  return false
+})
+
 // Only show install button if:
 // - On mobile device
 // - App can be installed
@@ -44,11 +69,26 @@ const shouldShowInstallButton = computed(() => {
 // Force show for testing
 const forceShowInstall = () => {
   console.log('Forcing install prompt...')
-  // This will trigger the install prompt if available
-  if (process.client && 'serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then((registration) => {
-      console.log('Service Worker ready:', registration)
-    })
+  
+  // Check if we can manually trigger installation
+  if (process.client) {
+    // Try to trigger the install prompt manually
+    if (canInstall.value) {
+      console.log('Using deferred prompt')
+      installPWA()
+    } else {
+      console.log('No deferred prompt available')
+      
+      // Check if we can trigger the beforeinstallprompt event
+      const event = new Event('beforeinstallprompt')
+      window.dispatchEvent(event)
+      
+      // Also try to check if the app meets criteria
+      console.log('Checking PWA criteria...')
+      console.log('HTTPS:', window.location.protocol === 'https:')
+      console.log('Service Worker:', 'serviceWorker' in window.navigator)
+      console.log('Manifest:', document.querySelector('link[rel="manifest"]'))
+    }
   }
 }
 </script> 

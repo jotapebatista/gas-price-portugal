@@ -39,6 +39,33 @@ export const usePWAInstall = () => {
     }
   }
 
+  // Check if PWA meets installation criteria
+  const checkPWACriteria = () => {
+    if (process.client) {
+      // Check if service worker is registered
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          console.log('Service Worker Registrations:', registrations.length)
+          if (registrations.length > 0) {
+            console.log('Service Worker is active')
+          }
+        })
+      }
+
+      // Check if manifest is accessible
+      const manifestLink = document.querySelector('link[rel="manifest"]')
+      if (manifestLink) {
+        console.log('Manifest link found:', manifestLink.getAttribute('href'))
+      } else {
+        console.log('No manifest link found')
+      }
+
+      // Check if running on HTTPS
+      const isHTTPS = location.protocol === 'https:'
+      console.log('HTTPS:', isHTTPS)
+    }
+  }
+
   // Listen for beforeinstallprompt event
   const setupInstallListener = () => {
     if (process.client) {
@@ -49,6 +76,14 @@ export const usePWAInstall = () => {
         canInstall.value = true
         debugInfo.value.hasBeforeInstallPrompt = true
       })
+      
+      // Check for existing deferred prompt (in case event fired before listener was added)
+      if ((window as any).deferredPrompt) {
+        console.log('Found existing deferred prompt')
+        deferredPrompt.value = (window as any).deferredPrompt
+        canInstall.value = true
+        debugInfo.value.hasBeforeInstallPrompt = true
+      }
       
       // Also check if the event was already fired
       setTimeout(() => {
@@ -94,6 +129,7 @@ export const usePWAInstall = () => {
   onMounted(() => {
     checkIfInstalled()
     checkIfMobile()
+    checkPWACriteria()
     setupInstallListener()
     setupInstalledListener()
   })
