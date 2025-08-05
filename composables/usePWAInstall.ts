@@ -132,18 +132,45 @@ export const usePWAInstall = () => {
 
   // Install the PWA
   const installPWA = async () => {
-    if (process.client && deferredPrompt.value) {
-      deferredPrompt.value.prompt()
-      const { outcome } = await deferredPrompt.value.userChoice
+    if (process.client) {
+      console.log('Attempting to install PWA...')
+      console.log('Deferred prompt:', deferredPrompt.value)
       
-      if (outcome === 'accepted') {
-        console.log('PWA installed successfully')
+      if (deferredPrompt.value) {
+        try {
+          // Check if the prompt method exists (Firefox compatibility)
+          if (typeof deferredPrompt.value.prompt === 'function') {
+            console.log('Using prompt() method')
+            deferredPrompt.value.prompt()
+            const { outcome } = await deferredPrompt.value.userChoice
+            
+            if (outcome === 'accepted') {
+              console.log('PWA installed successfully')
+            } else {
+              console.log('PWA installation declined')
+            }
+          } else {
+            console.log('Prompt method not available, trying alternative approach')
+            // For Firefox and other browsers that don't support prompt()
+            if (deferredPrompt.value.userChoice) {
+              const choice = await deferredPrompt.value.userChoice
+              console.log('Installation choice:', choice)
+            }
+          }
+        } catch (error) {
+          console.error('Error during PWA installation:', error)
+        }
+        
+        deferredPrompt.value = null
+        canInstall.value = false
       } else {
-        console.log('PWA installation declined')
+        console.log('No deferred prompt available')
+        
+        // For iOS, show manual installation instructions
+        if (isMobile.value && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          alert('To install this app on iOS:\n\n1. Tap the Share button\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add"')
+        }
       }
-      
-      deferredPrompt.value = null
-      canInstall.value = false
     }
   }
 

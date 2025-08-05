@@ -72,5 +72,11 @@
   "noFavoritesDescription": "Adicione postos aos seus favoritos para aceder rapidamente",
   "addToFavorites": "Adicionar aos favoritos",
   "removeFromFavorites": "Remover dos favoritos",
-  "installApp": "Instalar App"
+  "installApp": "Instalar App",
+  "installOnIOS": "Instalar no iOS",
+  "iosInstallInstructions": "Para instalar esta aplicação no seu iPhone ou iPad, siga estes passos:",
+  "iosStep1": "Toque no botão Partilhar (quadrado com seta para cima)",
+  "iosStep2": "Deslize para baixo e toque \"Adicionar ao Ecrã Inicial\"",
+  "iosStep3": "Toque \"Adicionar\" para instalar",
+  "gotIt": "Entendi!"
 } 

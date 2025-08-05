@@ -34,11 +34,12 @@
     <div>Install: {{ canInstall ? '✅' : '❌' }}</div>
     <div>Installed: {{ isInstalled ? '✅' : '❌' }}</div>
     <div>Manifest: {{ hasManifest ? '✅' : '❌' }}</div>
+    <div>iOS: {{ isIOS ? '✅' : '❌' }}</div>
     <button 
       @click="forceShowInstall" 
       class="mt-2 bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold"
     >
-      Test Install
+      {{ isIOS ? 'Show iOS Instructions' : 'Test Install' }}
     </button>
   </div>
 </template>
@@ -72,6 +73,13 @@ const hasManifest = computed(() => {
   return false
 })
 
+const isIOS = computed(() => {
+  if (process.client) {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent)
+  }
+  return false
+})
+
 // Only show install button if:
 // - On mobile device
 // - App can be installed
@@ -86,6 +94,12 @@ const forceShowInstall = () => {
   
   // Check if we can manually trigger installation
   if (process.client) {
+    // For iOS, show manual instructions
+    if (isIOS.value) {
+      alert('To install this app on iOS:\n\n1. Tap the Share button (square with arrow up)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add"\n\nThis will add the app to your home screen!')
+      return
+    }
+    
     // Try to trigger the install prompt manually
     if (canInstall.value) {
       console.log('Using deferred prompt')
