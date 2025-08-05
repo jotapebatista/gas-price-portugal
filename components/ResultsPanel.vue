@@ -11,15 +11,14 @@
             {{ $t("foundStations", { count: stations.length }) }}
           </p>
         </div>
-        <div class="flex items-center space-x-2">
-          <!-- Sort Button -->
+        <!--div class="flex items-center space-x-2">
           <button
             @click="toggleSortMenu"
             class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <Icon name="heroicons:bars-3" class="w-5 h-5" />
           </button>
-        </div>
+        </div-->
       </div>
 
       <!-- Loading State -->
