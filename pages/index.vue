@@ -71,6 +71,19 @@
 					</div>
 				</div>
 
+				<!-- Favorites Panel -->
+				<div
+					v-if="activeTab === 'favorites'"
+					class="absolute inset-0 z-[1000] flex flex-col"
+				>
+					<div class="flex-1 overflow-hidden">
+						<FavoritesPanel
+							:all-stations="groupedStations"
+							@show-on-map="showStationOnMap"
+						/>
+					</div>
+				</div>
+
 				<!-- Settings Panel -->
 				<div
 					v-if="activeTab === 'settings'"
@@ -87,6 +100,7 @@
 				:active-tab="activeTab"
 				:has-active-filters="hasActiveFilters"
 				:results-count="groupedStations.length"
+				:favorite-count="favoriteCount"
 				@update:active-tab="activeTab = $event"
 			/>
 		</div>
@@ -111,6 +125,8 @@ const {
 	fetchFuelTypes,
 	fetchStations,
 } = useGasStationsAPI();
+
+const { favoriteCount } = useFavorites();
 
 // Reactive state
 const selectedFuelTypes: Ref<number[]> = ref([]); 

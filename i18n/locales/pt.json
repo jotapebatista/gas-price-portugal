@@ -65,5 +65,11 @@
   "dataSource": "Fonte de Dados",
   "dataSourceDescription": "Preços de combustível de fontes oficiais",
   "about": "Acerca de",
-  "aboutDescription": "Esta aplicação ajuda-o a encontrar os melhores preços de combustível em Portugal. Os dados são provenientes de APIs governamentais oficiais e atualizados regularmente."
+  "aboutDescription": "Esta aplicação ajuda-o a encontrar os melhores preços de combustível em Portugal. Os dados são provenientes de APIs governamentais oficiais e atualizados regularmente.",
+  "favorites": "Favoritos",
+  "favoriteStations": "{count} postos favoritos",
+  "noFavorites": "Ainda sem favoritos",
+  "noFavoritesDescription": "Adicione postos aos seus favoritos para aceder rapidamente",
+  "addToFavorites": "Adicionar aos favoritos",
+  "removeFromFavorites": "Remover dos favoritos"
 } 

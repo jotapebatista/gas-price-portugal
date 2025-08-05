@@ -5,52 +5,33 @@
       <div class="flex items-center justify-between mb-6">
         <div>
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ $t("results") }}
+            {{ $t("favorites") }}
           </h3>
           <p class="text-sm text-gray-600 dark:text-gray-400">
-            {{ $t("foundStations", { count: stations.length }) }}
+            {{ $t("favoriteStations", { count: favoriteStations.length }) }}
           </p>
-        </div>
-        <div class="flex items-center space-x-2">
-          <!-- Sort Button -->
-          <button
-            @click="toggleSortMenu"
-            class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-          >
-            <Icon name="heroicons:bars-3" class="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      <!-- Loading State -->
-      <div v-if="loading" class="flex items-center justify-center py-12">
-        <div class="text-center">
-          <div class="mx-auto h-12 w-12 text-blue-500 mb-4">
-            <Icon name="heroicons:arrow-path" class="animate-spin w-12 h-12" />
-          </div>
-          <p class="text-gray-600 dark:text-gray-400">{{ $t("searching") }}</p>
         </div>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="stations.length === 0 && !loading" class="flex items-center justify-center py-12">
+      <div v-if="favoriteStations.length === 0" class="flex items-center justify-center py-12">
         <div class="text-center">
           <div class="mx-auto h-16 w-16 text-gray-400 mb-4">
-            <Icon name="heroicons:document-magnifying-glass" class="w-16 h-16" />
+            <Icon name="heroicons:heart" class="w-16 h-16" />
           </div>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            {{ $t("noResults") }}
+            {{ $t("noFavorites") }}
           </h3>
           <p class="text-sm text-gray-600 dark:text-gray-400">
-            {{ $t("noResultsDescription") }}
+            {{ $t("noFavoritesDescription") }}
           </p>
         </div>
       </div>
 
-      <!-- Results List -->
+      <!-- Favorites List -->
       <div v-else class="space-y-3">
         <div
-          v-for="station in sortedStations"
+          v-for="station in favoriteStations"
           :key="station.id"
           class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm hover:shadow-md transition-all duration-200"
         >
@@ -65,19 +46,13 @@
               </p>
             </div>
             <div class="flex items-center space-x-2">
-              <!-- Favorite Button -->
+              <!-- Remove from Favorites Button -->
               <button
-                @click="toggleFavorite(station.id)"
-                class="p-2 transition-colors"
-                :class="isFavorite(station.id) 
-                  ? 'text-red-500 hover:text-red-600' 
-                  : 'text-gray-400 hover:text-red-500'"
-                :title="isFavorite(station.id) ? $t('removeFromFavorites') : $t('addToFavorites')"
+                @click="removeFavorite(station.id)"
+                class="p-2 text-red-500 hover:text-red-600 transition-colors"
+                :title="$t('removeFromFavorites')"
               >
-                <Icon 
-                  :name="isFavorite(station.id) ? 'heroicons:heart-solid' : 'heroicons:heart'" 
-                  class="w-5 h-5" 
-                />
+                <Icon name="heroicons:heart-solid" class="w-5 h-5" />
               </button>
               <!-- Show on Map Button -->
               <button
@@ -157,8 +132,7 @@ interface GroupedStation {
 }
 
 interface Props {
-  stations: GroupedStation[];
-  loading: boolean;
+  allStations: GroupedStation[];
 }
 
 interface Emits {
@@ -169,31 +143,13 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const { t: $t } = useI18n();
-const { isFavorite, toggleFavorite } = useFavorites();
+const { favorites, removeFavorite } = useFavorites();
 
-const sortMenuOpen = ref(false);
-const sortBy = ref('name'); // 'name', 'price', 'distance'
-
-const sortedStations = computed(() => {
-  const stations = [...props.stations];
-  
-  switch (sortBy.value) {
-    case 'name':
-      return stations.sort((a, b) => a.nome.localeCompare(b.nome));
-    case 'price':
-      return stations.sort((a, b) => {
-        const aMinPrice = Math.min(...a.combustiveis.map(f => f.preco || Infinity));
-        const bMinPrice = Math.min(...b.combustiveis.map(f => f.preco || Infinity));
-        return aMinPrice - bMinPrice;
-      });
-    default:
-      return stations;
-  }
+// Get favorite stations from all stations
+const favoriteStations = computed(() => {
+  const favoriteIds = favorites.value.map(f => f.id);
+  return props.allStations.filter(station => favoriteIds.includes(station.id));
 });
-
-const toggleSortMenu = () => {
-  sortMenuOpen.value = !sortMenuOpen.value;
-};
 
 const showOnMap = (station: GroupedStation) => {
   emit('showOnMap', station);
