@@ -13,22 +13,20 @@ export const usePWAInstall = () => {
   // Check if running as PWA
   const checkIfInstalled = () => {
     if (process.client) {
+      // Check multiple ways to detect if PWA is installed
       const displayMode = window.matchMedia('(display-mode: standalone)').matches
       const isStandalone = (window.navigator as any).standalone === true
+      const isInApp = window.navigator.userAgent.includes('wv') // Android WebView
+      const isInPWA = window.location.href.includes('standalone') || window.location.href.includes('pwa')
       
-      isInstalled.value = displayMode || isStandalone
+      isInstalled.value = displayMode || isStandalone || isInApp || isInPWA
       
-      // Debug info
-      debugInfo.value.displayMode = displayMode ? 'standalone' : 'browser'
-      debugInfo.value.isStandalone = isStandalone
-      debugInfo.value.userAgent = navigator.userAgent
-      
-      console.log('PWA Install Debug:', {
-        isInstalled: isInstalled.value,
-        displayMode,
-        isStandalone,
-        userAgent: navigator.userAgent
-      })
+      // Debug info (only in development)
+      if (process.dev) {
+        debugInfo.value.displayMode = displayMode ? 'standalone' : 'browser'
+        debugInfo.value.isStandalone = isStandalone
+        debugInfo.value.userAgent = navigator.userAgent
+      }
     }
   }
 
@@ -41,7 +39,7 @@ export const usePWAInstall = () => {
 
   // Check if PWA meets installation criteria
   const checkPWACriteria = () => {
-    if (process.client) {
+    if (process.client && process.dev) {
       // Check if service worker is registered
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then((registrations) => {
@@ -92,7 +90,7 @@ export const usePWAInstall = () => {
   const setupInstallListener = () => {
     if (process.client) {
       window.addEventListener('beforeinstallprompt', (e) => {
-        console.log('beforeinstallprompt event fired!')
+        if (process.dev) console.log('beforeinstallprompt event fired!')
         e.preventDefault()
         deferredPrompt.value = e
         canInstall.value = true
@@ -101,21 +99,23 @@ export const usePWAInstall = () => {
       
       // Check for existing deferred prompt (in case event fired before listener was added)
       if ((window as any).deferredPrompt) {
-        console.log('Found existing deferred prompt')
+        if (process.dev) console.log('Found existing deferred prompt')
         deferredPrompt.value = (window as any).deferredPrompt
         canInstall.value = true
         debugInfo.value.hasBeforeInstallPrompt = true
       }
       
       // Also check if the event was already fired
-      setTimeout(() => {
-        console.log('PWA Install Status:', {
-          canInstall: canInstall.value,
-          isInstalled: isInstalled.value,
-          isMobile: isMobile.value,
-          hasDeferredPrompt: !!deferredPrompt.value
-        })
-      }, 2000)
+      if (process.dev) {
+        setTimeout(() => {
+          console.log('PWA Install Status:', {
+            canInstall: canInstall.value,
+            isInstalled: isInstalled.value,
+            isMobile: isMobile.value,
+            hasDeferredPrompt: !!deferredPrompt.value
+          })
+        }, 2000)
+      }
     }
   }
 
@@ -133,38 +133,40 @@ export const usePWAInstall = () => {
   // Install the PWA
   const installPWA = async () => {
     if (process.client) {
-      console.log('Attempting to install PWA...')
-      console.log('Deferred prompt:', deferredPrompt.value)
+      if (process.dev) {
+        console.log('Attempting to install PWA...')
+        console.log('Deferred prompt:', deferredPrompt.value)
+      }
       
       if (deferredPrompt.value) {
         try {
           // Check if the prompt method exists (Firefox compatibility)
           if (typeof deferredPrompt.value.prompt === 'function') {
-            console.log('Using prompt() method')
+            if (process.dev) console.log('Using prompt() method')
             deferredPrompt.value.prompt()
             const { outcome } = await deferredPrompt.value.userChoice
             
             if (outcome === 'accepted') {
-              console.log('PWA installed successfully')
+              if (process.dev) console.log('PWA installed successfully')
             } else {
-              console.log('PWA installation declined')
+              if (process.dev) console.log('PWA installation declined')
             }
           } else {
-            console.log('Prompt method not available, trying alternative approach')
+            if (process.dev) console.log('Prompt method not available, trying alternative approach')
             // For Firefox and other browsers that don't support prompt()
             if (deferredPrompt.value.userChoice) {
               const choice = await deferredPrompt.value.userChoice
-              console.log('Installation choice:', choice)
+              if (process.dev) console.log('Installation choice:', choice)
             }
           }
         } catch (error) {
-          console.error('Error during PWA installation:', error)
+          if (process.dev) console.error('Error during PWA installation:', error)
         }
         
         deferredPrompt.value = null
         canInstall.value = false
       } else {
-        console.log('No deferred prompt available')
+        if (process.dev) console.log('No deferred prompt available')
         
         // For iOS, show manual installation instructions
         if (isMobile.value && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
@@ -181,6 +183,13 @@ export const usePWAInstall = () => {
     checkPWACriteria()
     setupInstallListener()
     setupInstalledListener()
+    
+    // Periodically check installation status (useful for when user installs and returns)
+    if (process.client) {
+      setInterval(() => {
+        checkIfInstalled()
+      }, 5000) // Check every 5 seconds
+    }
   })
 
   return {
