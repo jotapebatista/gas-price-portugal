@@ -11,14 +11,25 @@
             {{ $t("foundStations", { count: stations.length }) }}
           </p>
         </div>
-        <!--div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-2">
           <button
-            @click="toggleSortMenu"
-            class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            @click="goToFilters"
+            class="p-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+            :title="$t('modifySearch')"
           >
-            <Icon name="heroicons:bars-3" class="w-5 h-5" />
+            <Icon name="heroicons:funnel" class="w-5 h-5" />
           </button>
-        </div-->
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div v-if="showSuccessMessage" class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+        <div class="flex items-center">
+          <Icon name="heroicons:check-circle" class="w-5 h-5 text-green-500 mr-2" />
+          <span class="text-sm text-green-700 dark:text-green-300">
+            {{ $t("searchSuccess", { count: stations.length }) }}
+          </span>
+        </div>
       </div>
 
       <!-- Loading State -->
@@ -40,9 +51,15 @@
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
             {{ $t("noResults") }}
           </h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
             {{ $t("noResultsDescription") }}
           </p>
+          <button
+            @click="goToFilters"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            {{ $t("modifySearch") }}
+          </button>
         </div>
       </div>
 
@@ -158,10 +175,12 @@ interface GroupedStation {
 interface Props {
   stations: GroupedStation[];
   loading: boolean;
+  showSuccessMessage?: boolean;
 }
 
 interface Emits {
   (e: 'showOnMap', station: GroupedStation): void;
+  (e: 'goToFilters'): void;
 }
 
 const props = defineProps<Props>();
@@ -196,6 +215,10 @@ const toggleSortMenu = () => {
 
 const showOnMap = (station: GroupedStation) => {
   emit('showOnMap', station);
+};
+
+const goToFilters = () => {
+  emit('goToFilters');
 };
 
 const formatPrice = (price: number) => {

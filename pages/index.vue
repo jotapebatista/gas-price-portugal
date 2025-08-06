@@ -66,7 +66,9 @@
 						<ResultsPanel
 							:stations="groupedStations"
 							:loading="loading"
+							:show-success-message="showSuccessMessage"
 							@show-on-map="showStationOnMap"
+							@go-to-filters="goToFilters"
 						/>
 					</div>
 				</div>
@@ -134,6 +136,7 @@ const selectedDistrict = ref("");
 const selectedMunicipality = ref("");
 const hasSearched = ref(false);
 const activeTab = ref("map");
+const showSuccessMessage = ref(false);
 
 // Load initial data
 onMounted(async () => {
@@ -184,27 +187,37 @@ const onMunicipalityChange = () => {
 };
 
 const searchStations = async () => {
-  // If no district and no municipality, fetch by fuel types only
-  if (!selectedDistrict.value && !selectedMunicipality.value) {
-    try {
+  hasSearched.value = true
+  showSuccessMessage.value = false
+  
+  try {
+    // If no district and no municipality, fetch by fuel types only
+    if (!selectedDistrict.value && !selectedMunicipality.value) {
       await fetchStations({
         idsTiposComb: selectedFuelTypes.value
       })
-    } catch (err) {
-      console.error('Error searching stations:', err)
+    } else {
+      // Otherwise, use full filter
+      await fetchStations({
+        idsTiposComb: selectedFuelTypes.value,
+        idDistrito: Number(selectedDistrict.value),
+        idsMunicipios: selectedMunicipality.value ? [Number(selectedMunicipality.value)] : []
+      })
     }
-    return
-  }
-  // Otherwise, use full filter
-  hasSearched.value = true
-  try {
-    await fetchStations({
-      idsTiposComb: selectedFuelTypes.value,
-      idDistrito: Number(selectedDistrict.value),
-      idsMunicipios: selectedMunicipality.value ? [Number(selectedMunicipality.value)] : []
-    })
+    
+    // Auto-navigate to Results tab after successful search
+    activeTab.value = "results"
+    
+    // Show success message briefly
+    showSuccessMessage.value = true
+    setTimeout(() => {
+      showSuccessMessage.value = false
+    }, 3000)
+    
   } catch (err) {
     console.error('Error searching stations:', err)
+    // Stay in filters tab if there's an error
+    activeTab.value = "filters"
   }
 }
 
@@ -213,5 +226,9 @@ const showStationOnMap = (station: any) => {
 	activeTab.value = "map";
 	// You can add logic here to center the map on the selected station
 	// This would require passing the station data to the map component
+};
+
+const goToFilters = () => {
+	activeTab.value = "filters";
 };
 </script>

@@ -78,5 +78,9 @@
   "iosStep1": "Tap the Share button (square with arrow up)",
   "iosStep2": "Scroll down and tap \"Add to Home Screen\"",
   "iosStep3": "Tap \"Add\" to install",
-  "gotIt": "Got it!"
+  "gotIt": "Got it!",
+  "searchSuccess": "Found {count} gas stations",
+  "modifySearch": "Modify Search",
+  "noResults": "No stations found",
+  "noResultsDescription": "Try adjusting your search criteria or expanding your search area."
 } 
