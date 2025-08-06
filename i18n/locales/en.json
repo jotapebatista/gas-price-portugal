@@ -65,7 +65,7 @@
   "appInfo": "App Information",
   "version": "Version",
   "dataSource": "Data Source",
-  "dataSourceDescription": "Fuel prices from official sources",
+  "dataSourceDescription": "Direção-Geral de Energia e Geologia (DGEG)",
   "about": "About",
   "aboutDescription": "This app helps you find the best fuel prices in Portugal. Data is sourced from official government APIs and updated regularly.",
   "favorites": "Favorites",
