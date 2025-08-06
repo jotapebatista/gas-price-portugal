@@ -1,13 +1,15 @@
 {
   "name": "gazly",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev --host",
-    "generate": "nuxt generate",
+    "build": "node scripts/sync-version.js && nuxt build",
+    "dev": "node scripts/sync-version.js && nuxt dev --host",
+    "generate": "node scripts/sync-version.js && nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "sync-version": "node scripts/sync-version.js"
   },
   "dependencies": {
     "@nuxt/image": "^1.10.0",

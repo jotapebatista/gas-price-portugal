@@ -35,10 +35,17 @@
           							<button 
 								@click="autofillLocation" 
 								:disabled="geolocLoading" 
-								class="mb-2 px-3 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 flex items-center space-x-2"
+								:class="[
+									'mb-2 px-3 py-2 rounded flex items-center space-x-2',
+									usingUserLocation 
+										? 'bg-green-500 text-white hover:bg-green-600' 
+										: 'bg-blue-500 text-white hover:bg-blue-600',
+									'disabled:opacity-50'
+								]"
 							>
 								<Icon name="heroicons:map-pin" class="w-4 h-4" />
 								<span v-if="geolocLoading">{{ $t('locating') }}</span>
+								<span v-else-if="usingUserLocation">{{ $t('usingUserLocation') }}</span>
 								<span v-else>{{ $t('useMyLocation') }}</span>
 							</button>
           <p v-if="geolocError" class="text-xs text-red-500">{{ geolocError }}</p>
@@ -105,7 +112,7 @@
         <div class="pt-4">
           <button
             @click="searchStations"
-            :disabled="loading || selectedFuelTypes.length === 0"
+            :disabled="loading"
             class="w-full px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center text-base"
           >
             <span v-if="loading" class="flex items-center justify-center">
@@ -129,6 +136,7 @@ import { useGeolocation } from '@/composables/useGeolocation'
 const geolocation = useGeolocation()
 const geolocLoading = ref(false)
 const geolocError = ref('')
+const usingUserLocation = ref(false)
 
 interface FuelType {
   id: number;
@@ -188,18 +196,23 @@ const clearAllFilters = () => {
   emit("update:selectedFuelTypes", []);
   emit("update:selectedDistrict", "");
   emit("update:selectedMunicipality", "");
+  usingUserLocation.value = false;
 };
 
 const onDistrictChange = (event: Event) => {
   const target = event.target as HTMLSelectElement;
   emit("update:selectedDistrict", target.value);
   emit("districtChange");
+  // Reset user location state when manually changing district
+  usingUserLocation.value = false;
 };
 
 const onMunicipalityChange = (event: Event) => {
   const target = event.target as HTMLSelectElement;
   emit("update:selectedMunicipality", target.value);
   emit("municipalityChange");
+  // Reset user location state when manually changing municipality
+  usingUserLocation.value = false;
 };
 
 const searchStations = () => {
@@ -237,6 +250,7 @@ async function autofillLocation() {
       
       if (municipalityObj) {
         emit('update:selectedMunicipality', String(municipalityObj.id))
+        usingUserLocation.value = true // Set to true when location is successfully used
       } else {
         geolocError.value = $t('locationNotFound')
       }

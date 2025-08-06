@@ -3,8 +3,8 @@ import pt from './i18n/locales/pt.json'
 
 export default defineI18nConfig(() => ({
   legacy: false,
-  locale: 'en',
-  fallbackLocale: 'en',
+  locale: 'pt',
+  fallbackLocale: 'pt',
   messages: {
     en,
     pt

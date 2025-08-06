@@ -56,12 +56,20 @@
       </button>
       <button 
         @click="copyAddress"
-        class="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center justify-center"
+        :class="[
+          'px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center',
+          copySuccess 
+            ? 'bg-green-500 text-white' 
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+        ]"
       >
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg v-if="!copySuccess" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
         </svg>
-        {{ $t('copy') }}
+        <svg v-else class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        {{ copySuccess ? $t('copied') : $t('copy') }}
       </button>
     </div>
   </div>
@@ -99,6 +107,8 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+const copySuccess = ref(false)
+
 const openDirections = () => {
   if (!props.station) return
   const url = `https://www.google.com/maps/dir/?api=1&destination=${props.station.latitude},${props.station.longitude}`
@@ -110,9 +120,13 @@ const copyAddress = async () => {
   const address = `${props.station.morada}, ${props.station.codigoPostal} ${props.station.localidade}`
   try {
     await navigator.clipboard.writeText(address)
-      } catch (err) {
-      // Error copying address
-    }
+    copySuccess.value = true
+    setTimeout(() => {
+      copySuccess.value = false
+    }, 2000)
+  } catch (err) {
+    // Error copying address
+  }
 }
 
 const formatPrice = (price: number) => {

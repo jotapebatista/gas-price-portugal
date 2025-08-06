@@ -19,7 +19,7 @@
           </h4>
           
           <!-- Theme Toggle -->
-          <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg" @click="toggleTheme">
             <div class="flex items-center space-x-3">
               <Icon name="heroicons:sun" class="w-5 h-5 text-gray-600 dark:text-gray-400" />
               <div>
@@ -33,7 +33,7 @@
             </div>
             <button
               @click="toggleTheme"
-              class="p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              class="p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex"
               :aria-label="$t('toggleTheme')"
             >
               <Icon 
@@ -139,8 +139,9 @@ const { locale, locales } = useI18n()
 
 const { t: $t } = useI18n()
 
-// App version - you can update this as needed
-const appVersion = ref('1.0.0')
+// App version - dynamically read from runtime config
+const config = useRuntimeConfig()
+const appVersion = computed(() => config.public.appVersion)
 
 // Available locales
 const availableLocales = computed(() => {

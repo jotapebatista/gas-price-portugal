@@ -139,7 +139,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      appName: 'Nuxt3 PWA Pro',
+      appName: 'Gazly',
+      appVersion: '1.1.0',
     },
   },
 })

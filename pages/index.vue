@@ -141,6 +141,8 @@ const showSuccessMessage = ref(false);
 onMounted(async () => {
 	try {
 		await Promise.all([fetchDistricts(), fetchFuelTypes()]);
+		// Select all fuel types by default
+		selectedFuelTypes.value = fuelTypes.value.map(fuel => fuel.id);
 	    } catch (err) {
       // Error loading initial data
     }

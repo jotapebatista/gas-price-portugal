@@ -1,10 +1,26 @@
 <template>
 	<div class="space-y-2">
-		<label
-			class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-		>
-			{{ $t("fuelType") }}
-		</label>
+		<div class="flex items-center justify-between">
+			<label
+				class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+			>
+				{{ $t("fuelType") }}
+			</label>
+			<div class="flex space-x-2">
+				<button
+					@click="selectAllFuelTypes"
+					class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+				>
+					{{ $t("selectAll") }}
+				</button>
+				<button
+					@click="clearAllFuelTypes"
+					class="text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+				>
+					{{ $t("clearAll") }}
+				</button>
+			</div>
+		</div>
 		<div class="max-h-32 sm:max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 p-2 space-y-1">
 			<div
 				v-for="fuel in fuelTypes"
@@ -27,19 +43,7 @@
 				</label>
 			</div>
 		</div>
-		<p
-			v-if="selectedFuelTypes.length === 0"
-			class="text-xs text-red-500 flex items-center"
-		>
-			<svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-				<path
-					fill-rule="evenodd"
-					d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-					clip-rule="evenodd"
-				/>
-			</svg>
-			{{ $t("selectAtLeastOneFuel") }}
-		</p>
+
 	</div>
 </template>
 
@@ -72,6 +76,17 @@ function onFuelTypeChange(fuelId: number, event: Event) {
 		newSelectedTypes = props.selectedFuelTypes.filter((id) => id !== fuelId);
 	}
 	emit("update:selectedFuelTypes", newSelectedTypes);
+	emit("change");
+}
+
+function selectAllFuelTypes() {
+	const allFuelIds = props.fuelTypes.map(fuel => fuel.id);
+	emit("update:selectedFuelTypes", allFuelIds);
+	emit("change");
+}
+
+function clearAllFuelTypes() {
+	emit("update:selectedFuelTypes", []);
 	emit("change");
 }
 </script>

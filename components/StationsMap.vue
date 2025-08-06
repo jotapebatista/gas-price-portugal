@@ -58,9 +58,24 @@
 	</ClientOnly>
 </template>
 
+<style scoped>
+.favorite-station-marker {
+	background: transparent !important;
+	border: none !important;
+}
+
+.user-location-marker {
+	background: transparent !important;
+	border: none !important;
+}
+</style>
+
 <script setup lang="ts">
 import { useGeolocation } from '@/composables/useGeolocation'
+import { useFavorites } from '@/composables/useFavorites'
+
 const geolocation = useGeolocation()
+const { isFavorite } = useFavorites()
 const geolocLoading = ref(false)
 const geolocError = ref('')
 
@@ -208,9 +223,31 @@ const updateMarkers = async (stations: GroupedStation[]) => {
 	const bounds = L.default.latLngBounds([]);
 
 	stations.forEach((station) => {
-		const marker = L.default
-			.marker([station.latitude, station.longitude])
-			.addTo(map.value!);
+		// Check if station is favorite
+		const isStationFavorite = isFavorite(station.id);
+		
+		// Create custom icon for favorite stations
+		let marker;
+		if (isStationFavorite) {
+			const favoriteIcon = L.default.divIcon({
+				className: 'favorite-station-marker',
+				html: `
+					<div class="w-8 h-8 bg-red-500 border-2 border-white rounded-full shadow-lg flex items-center justify-center">
+						<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+							<path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+						</svg>
+					</div>
+				`,
+				iconSize: [32, 32],
+				iconAnchor: [16, 16]
+			});
+			marker = L.default.marker([station.latitude, station.longitude], { icon: favoriteIcon });
+		} else {
+			// Default marker for non-favorite stations
+			marker = L.default.marker([station.latitude, station.longitude]);
+		}
+		
+		marker.addTo(map.value!);
 
 		marker.on("click", () => {
 			selectedStation.value = station;
