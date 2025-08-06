@@ -81,7 +81,6 @@
 				>
 					<div class="flex-1 overflow-hidden">
 						<FavoritesPanel
-							:all-stations="groupedStations"
 							@show-on-map="showStationOnMap"
 						/>
 					</div>

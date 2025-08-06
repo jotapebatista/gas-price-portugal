@@ -131,25 +131,14 @@ interface GroupedStation {
   combustiveis: Combustivel[];
 }
 
-interface Props {
-  allStations: GroupedStation[];
-}
-
 interface Emits {
-  (e: 'showOnMap', station: GroupedStation): void;
+  (e: 'showOnMap', station: any): void;
 }
 
-const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const { t: $t } = useI18n();
-const { favorites, removeFavorite } = useFavorites();
-
-// Get favorite stations from all stations
-const favoriteStations = computed(() => {
-  const favoriteIds = favorites.value.map(f => f.id);
-  return props.allStations.filter(station => favoriteIds.includes(station.id));
-});
+const { favoriteStations, removeFavorite } = useFavorites();
 
 const showOnMap = (station: GroupedStation) => {
   emit('showOnMap', station);

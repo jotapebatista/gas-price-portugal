@@ -90,7 +90,7 @@
             <div class="flex items-center space-x-2">
               <!-- Favorite Button -->
               <button
-                @click="toggleFavorite(station.id)"
+                @click="toggleFavorite(station)"
                 class="p-2 transition-colors"
                 :class="isFavorite(station.id) 
                   ? 'text-red-500 hover:text-red-600' 
