@@ -1,6 +1,6 @@
 <template>
   <ClientOnly>
-    <div v-if="showInstallPrompt" class="fixed bottom-4 left-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-700 z-50">
+    <div v-if="showInstallPrompt" class="fixed bottom-20 left-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-700 z-50">
       <div class="flex items-center justify-between">
         <div class="flex-1">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $t('install') }}</h3>

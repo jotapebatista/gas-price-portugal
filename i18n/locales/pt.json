@@ -80,6 +80,5 @@
   "searchSuccess": "Encontrados {count} postos de combustível",
   "modifySearch": "Modificar Pesquisa",
   "displayInMap": "Mostrar no Mapa",
-  "noResults": "Nenhum posto encontrado",
-  "noResultsDescription": "Tente ajustar os critérios de pesquisa ou expandir a área de busca."
+  "yourLocation": "Sua Localização"
 } 

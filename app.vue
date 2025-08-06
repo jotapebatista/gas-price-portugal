@@ -2,11 +2,13 @@
   <div>
     <NuxtPage />
     <PWAInstallPrompt />
-    <InstallAppButton />
   </div>
 </template>
 
 <script setup lang="ts">
+// Initialize color mode
+const colorMode = useColorMode()
+
 useHead({
   title: 'Gazly',
   link: [

@@ -110,9 +110,9 @@ const copyAddress = async () => {
   const address = `${props.station.morada}, ${props.station.codigoPostal} ${props.station.localidade}`
   try {
     await navigator.clipboard.writeText(address)
-  } catch (err) {
-    console.error('Error copying address:', err)
-  }
+      } catch (err) {
+      // Error copying address
+    }
 }
 
 const formatPrice = (price: number) => {

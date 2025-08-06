@@ -25,16 +25,16 @@ export default defineNuxtConfig({
         id: '/',
         icons: [
           {
-            src: '/new_logo.png',
+            src: '/new_logo-512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
           },
           {
-            src: '/new_logo.png',
+            src: '/new_logo-192.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
           }
         ],
         categories: ['utilities', 'travel'],
@@ -124,7 +124,7 @@ export default defineNuxtConfig({
     bundle: {
       optimizeTranslationDirective: false
     },
-    debug: true,
+    debug: false,
     lazy: false,
     vueI18n: '~/i18n.config.ts'
   },
@@ -132,6 +132,7 @@ export default defineNuxtConfig({
     classSuffix: '',
     preference: 'system',
     fallback: 'light',
+    storageKey: 'color-mode'
   },
   image: {
     // domains: ['yourdomain.com'],

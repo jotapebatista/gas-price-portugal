@@ -110,7 +110,6 @@ export function useGasStationsAPI() {
       return municipalities.value
     } catch (err) {
       error.value = 'Erro ao carregar municípios'
-      console.error('Error fetching municipalities:', err)
       throw err
     } finally {
       loading.value = false
@@ -135,7 +134,6 @@ export function useGasStationsAPI() {
       return activeFuelTypes
     } catch (err) {
       error.value = 'Erro ao carregar tipos de combustível'
-      console.error('Error fetching fuel types:', err)
       throw err
     } finally {
       loading.value = false
@@ -230,7 +228,6 @@ export function useGasStationsAPI() {
       return transformedStations
     } catch (err) {
       error.value = 'Erro ao carregar postos de combustível'
-      console.error('Error fetching stations:', err)
       throw err
     } finally {
       loading.value = false

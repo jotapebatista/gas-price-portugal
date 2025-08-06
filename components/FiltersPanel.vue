@@ -213,9 +213,6 @@ async function autofillLocation() {
     const { lat, lng } = await geolocation.getCurrentPosition()
     const { district, municipality } = await geolocation.getLocationFromCoordinates(lat, lng)
     
-    console.log('Geolocation result:', { district, municipality })
-    console.log('Available districts:', props.districts.map(d => d.nome))
-    
     // Try to find matching district with more flexible matching
     const districtObj = props.districts.find(d => 
       d.nome.toLowerCase().includes(district.toLowerCase()) || 
@@ -225,18 +222,13 @@ async function autofillLocation() {
     if (districtObj) {
       emit('update:selectedDistrict', String(districtObj.id))
       emit('districtChange') // Trigger the district change handler
-      console.log('Matched district:', districtObj.nome)
       
       // Wait for municipalities to be loaded
       let attempts = 0
       while (props.municipalities.length === 0 && attempts < 10) {
         await new Promise(resolve => setTimeout(resolve, 200))
         attempts++
-        console.log(`Waiting for municipalities to load... attempt ${attempts}`)
       }
-      
-      // Now try to find the municipality in the updated municipalities list
-      console.log('Available municipalities after district selection:', props.municipalities.map(m => m.nome))
       
       const municipalityObj = props.municipalities.find(m => 
         m.nome.toLowerCase().includes(municipality.toLowerCase()) || 
@@ -245,17 +237,13 @@ async function autofillLocation() {
       
       if (municipalityObj) {
         emit('update:selectedMunicipality', String(municipalityObj.id))
-        console.log('Matched municipality:', municipalityObj.nome)
       } else {
-        console.log('Municipality not found:', municipality)
         geolocError.value = $t('locationNotFound')
       }
     } else {
-      console.log('District not found:', district)
       geolocError.value = $t('locationNotFound')
     }
   } catch (err) {
-    console.error('Geolocation error:', err)
     geolocError.value = $t('locationError')
   } finally {
     geolocLoading.value = false

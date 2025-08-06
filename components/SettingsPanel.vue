@@ -154,7 +154,7 @@ const toggleTheme = () => {
 }
 
 const setLocale = async (newLocale: string) => {
-  // Direct locale switching
+  // Switch locale using the i18n composable
   locale.value = newLocale as 'en' | 'pt'
 }
 </script> 

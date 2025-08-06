@@ -43,46 +43,33 @@ export const usePWAInstall = () => {
       // Check if service worker is registered
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then((registrations) => {
-          console.log('Service Worker Registrations:', registrations.length)
-          if (registrations.length > 0) {
-            console.log('Service Worker is active')
-          }
+          // Service worker check completed
         })
       }
 
       // Check if manifest is accessible
       const manifestLink = document.querySelector('link[rel="manifest"]')
       if (manifestLink) {
-        console.log('Manifest link found:', manifestLink.getAttribute('href'))
-        
-        // Test if manifest is actually accessible
+        // Manifest link found
         const manifestHref = manifestLink.getAttribute('href')
         if (manifestHref) {
           fetch(manifestHref)
             .then(response => {
               if (response.ok) {
-                console.log('Manifest is accessible')
                 return response.json()
-              } else {
-                console.log('Manifest not accessible:', response.status)
               }
             })
             .then(data => {
-              if (data) {
-                console.log('Manifest content:', data)
-              }
+              // Manifest loaded successfully
             })
             .catch(error => {
-              console.log('Manifest fetch error:', error)
+              // Manifest fetch error
             })
         }
-      } else {
-        console.log('No manifest link found')
       }
 
       // Check if running on HTTPS
       const isHTTPS = location.protocol === 'https:'
-      console.log('HTTPS:', isHTTPS)
     }
   }
 
@@ -90,7 +77,6 @@ export const usePWAInstall = () => {
   const setupInstallListener = () => {
     if (process.client) {
       window.addEventListener('beforeinstallprompt', (e) => {
-        if (process.dev) console.log('beforeinstallprompt event fired!')
         e.preventDefault()
         deferredPrompt.value = e
         canInstall.value = true
@@ -99,22 +85,9 @@ export const usePWAInstall = () => {
       
       // Check for existing deferred prompt (in case event fired before listener was added)
       if ((window as any).deferredPrompt) {
-        if (process.dev) console.log('Found existing deferred prompt')
         deferredPrompt.value = (window as any).deferredPrompt
         canInstall.value = true
         debugInfo.value.hasBeforeInstallPrompt = true
-      }
-      
-      // Also check if the event was already fired
-      if (process.dev) {
-        setTimeout(() => {
-          console.log('PWA Install Status:', {
-            canInstall: canInstall.value,
-            isInstalled: isInstalled.value,
-            isMobile: isMobile.value,
-            hasDeferredPrompt: !!deferredPrompt.value
-          })
-        }, 2000)
       }
     }
   }
@@ -133,41 +106,25 @@ export const usePWAInstall = () => {
   // Install the PWA
   const installPWA = async () => {
     if (process.client) {
-      if (process.dev) {
-        console.log('Attempting to install PWA...')
-        console.log('Deferred prompt:', deferredPrompt.value)
-      }
-      
       if (deferredPrompt.value) {
         try {
           // Check if the prompt method exists (Firefox compatibility)
           if (typeof deferredPrompt.value.prompt === 'function') {
-            if (process.dev) console.log('Using prompt() method')
             deferredPrompt.value.prompt()
             const { outcome } = await deferredPrompt.value.userChoice
-            
-            if (outcome === 'accepted') {
-              if (process.dev) console.log('PWA installed successfully')
-            } else {
-              if (process.dev) console.log('PWA installation declined')
-            }
           } else {
-            if (process.dev) console.log('Prompt method not available, trying alternative approach')
             // For Firefox and other browsers that don't support prompt()
             if (deferredPrompt.value.userChoice) {
               const choice = await deferredPrompt.value.userChoice
-              if (process.dev) console.log('Installation choice:', choice)
             }
           }
         } catch (error) {
-          if (process.dev) console.error('Error during PWA installation:', error)
+          // Error during PWA installation
         }
         
         deferredPrompt.value = null
         canInstall.value = false
       } else {
-        if (process.dev) console.log('No deferred prompt available')
-        
         // For iOS, show manual installation instructions
         if (isMobile.value && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
           alert('To install this app on iOS:\n\n1. Tap the Share button\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add"')

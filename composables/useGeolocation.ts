@@ -14,9 +14,7 @@ export function useGeolocation() {
         const district = components.county || components.state || components.administrative_area_level_1 || "Unknown District";
         const municipality = components.city || components.town || components.village || components.administrative_area_level_2 || "Unknown Municipality";
         
-        console.log("OpenCage components:", components);
-        console.log("district", district);
-        console.log("municipality", municipality);
+
         
         return { district, municipality };
       } else {
@@ -26,7 +24,6 @@ export function useGeolocation() {
         };
       }
     } catch (error) {
-      console.error("Error fetching geolocation data:", error);
       return { district: "Error", municipality: "Error" };
     }
   };

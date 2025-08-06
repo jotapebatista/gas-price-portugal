@@ -108,8 +108,7 @@
 			/>
 		</div>
 
-		<!-- PWA Install Prompt -->
-		<PWAInstallPrompt />
+
 	</div>
 </template>
 
@@ -143,9 +142,9 @@ const showSuccessMessage = ref(false);
 onMounted(async () => {
 	try {
 		await Promise.all([fetchDistricts(), fetchFuelTypes()]);
-	} catch (err) {
-		console.error("Error loading initial data:", err);
-	}
+	    } catch (err) {
+      // Error loading initial data
+    }
 });
 
 // Computed properties
@@ -171,9 +170,9 @@ const onDistrictChange = async () => {
 	if (selectedDistrict.value) {
 		try {
 			await fetchMunicipalities(Number(selectedDistrict.value));
-		} catch (err) {
-			console.error("Error fetching municipalities:", err);
-		}
+		    } catch (err) {
+      // Error fetching municipalities
+    }
 	}
 
 	if (hasSearched.value) {
@@ -216,7 +215,7 @@ const searchStations = async () => {
     }, 3000)
     
   } catch (err) {
-    console.error('Error searching stations:', err)
+    // Error searching stations
     // Stay in filters tab if there's an error
     activeTab.value = "filters"
   }

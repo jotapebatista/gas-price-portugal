@@ -15,7 +15,6 @@ export const useFavorites = () => {
           favorites.value = JSON.parse(stored)
         }
       } catch (error) {
-        console.error('Error loading favorites:', error)
         favorites.value = []
       }
     }
@@ -27,7 +26,7 @@ export const useFavorites = () => {
       try {
         localStorage.setItem('gas-station-favorites', JSON.stringify(favorites.value))
       } catch (error) {
-        console.error('Error saving favorites:', error)
+        // Error saving favorites
       }
     }
   }

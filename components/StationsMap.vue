@@ -130,8 +130,10 @@ const { t: $t } = useI18n();
 const mapContainer = ref<HTMLElement>();
 const map = ref<any>();
 const markers = ref<any[]>([]);
+const userLocationMarker = ref<any>(null);
 const selectedStation = ref<GroupedStation | null>(null);
 const tileLayer = ref<any>();
+const userLocation = ref<{ lat: number; lng: number } | null>(null);
 
 // Initialize map when container is available
 watch(
@@ -164,6 +166,9 @@ watch(
 						map.value.invalidateSize();
 					}
 				}, 100);
+				
+				// Get user location after map is initialized
+				getUserLocation();
 			} catch (error) {
 				// Optionally handle error
 			}
@@ -240,6 +245,53 @@ const createPopupContent = (station: GroupedStation) => {
       </div>
     </div>
   `;
+};
+
+// Get user location and show on map
+const getUserLocation = async () => {
+	if (!process.client || !map.value) return;
+	
+	try {
+		const { lat, lng } = await geolocation.getCurrentPosition();
+		userLocation.value = { lat, lng };
+		
+		const L = await import("leaflet");
+		
+		// Remove existing user location marker
+		if (userLocationMarker.value) {
+			userLocationMarker.value.remove();
+		}
+		
+		// Create custom icon for user location
+		const userIcon = L.default.divIcon({
+			className: 'user-location-marker',
+			html: `
+				<div class="w-6 h-6 bg-blue-500 border-2 border-white rounded-full shadow-lg flex items-center justify-center">
+					<div class="w-3 h-3 bg-white rounded-full"></div>
+				</div>
+			`,
+			iconSize: [24, 24],
+			iconAnchor: [12, 12]
+		});
+		
+		// Add user location marker
+		userLocationMarker.value = L.default.marker([lat, lng], { icon: userIcon })
+			.addTo(map.value)
+			.bindPopup(`
+				<div class="p-2">
+					<h3 class="font-bold text-sm mb-1">${$t('yourLocation')}</h3>
+					<p class="text-xs text-gray-600">${lat.toFixed(4)}, ${lng.toFixed(4)}</p>
+				</div>
+			`);
+		
+		// Center map on user location if no stations are shown
+		if (props.stations.length === 0) {
+			map.value.setView([lat, lng], 12);
+		}
+		
+	    } catch (error) {
+      // Error getting user location
+    }
 };
 
 // Utility functions
