@@ -1,7 +1,7 @@
 <template>
   <div 
     v-if="count > 0"
-    class="absolute top-20 left-4 z-[1000] bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 px-3 py-2"
+    class="absolute top-4 left-4 z-[1000] bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 px-3 py-2"
   >
     <div class="flex items-center text-sm">
       <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

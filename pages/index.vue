@@ -69,6 +69,7 @@
 							:show-success-message="showSuccessMessage"
 							@show-on-map="showStationOnMap"
 							@go-to-filters="goToFilters"
+							@go-to-map="goToMap"
 						/>
 					</div>
 				</div>
@@ -230,5 +231,9 @@ const showStationOnMap = (station: any) => {
 
 const goToFilters = () => {
 	activeTab.value = "filters";
+};
+
+const goToMap = () => {
+	activeTab.value = "map";
 };
 </script>

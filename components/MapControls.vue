@@ -1,5 +1,5 @@
 <template>
-  <div class="absolute top-20 right-4 z-[1000] flex flex-col gap-2">
+  <div class="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
     <!-- Zoom Controls -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
       <button 

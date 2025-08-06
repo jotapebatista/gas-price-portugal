@@ -13,6 +13,13 @@
         </div>
         <div class="flex items-center space-x-2">
           <button
+            @click="goToMap"
+            class="p-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+            :title="$t('displayInMap')"
+          >
+            <Icon name="heroicons:map" class="w-5 h-5" />
+          </button>
+          <button
             @click="goToFilters"
             class="p-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
             :title="$t('modifySearch')"
@@ -181,6 +188,7 @@ interface Props {
 interface Emits {
   (e: 'showOnMap', station: GroupedStation): void;
   (e: 'goToFilters'): void;
+  (e: 'goToMap'): void;
 }
 
 const props = defineProps<Props>();
@@ -219,6 +227,10 @@ const showOnMap = (station: GroupedStation) => {
 
 const goToFilters = () => {
   emit('goToFilters');
+};
+
+const goToMap = () => {
+  emit('goToMap');
 };
 
 const formatPrice = (price: number) => {

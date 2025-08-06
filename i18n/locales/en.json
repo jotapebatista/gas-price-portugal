@@ -81,6 +81,7 @@
   "gotIt": "Got it!",
   "searchSuccess": "Found {count} gas stations",
   "modifySearch": "Modify Search",
+  "displayInMap": "Display in Map",
   "noResults": "No stations found",
   "noResultsDescription": "Try adjusting your search criteria or expanding your search area."
 } 
